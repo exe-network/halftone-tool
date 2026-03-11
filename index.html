@@ -672,57 +672,104 @@
   }
 
   // ─── Shirt Preview ───
+  function shirtPath(ctx, cx, w2, sh, neckW, neckD, sleeveW, sleeveD, shirtH){
+    ctx.beginPath();
+    ctx.moveTo(cx-neckW, neckD);
+    ctx.lineTo(cx-w2, sleeveD*0.4);
+    ctx.lineTo(cx-w2-sleeveW, sleeveD);
+    ctx.lineTo(cx-w2-sleeveW*0.3, sleeveD+shirtH*0.05);
+    ctx.lineTo(cx-w2, sleeveD*0.8);
+    ctx.lineTo(cx-w2*0.95, sh);
+    ctx.quadraticCurveTo(cx, sh+shirtH*0.02, cx+w2*0.95, sh);
+    ctx.lineTo(cx+w2, sleeveD*0.8);
+    ctx.lineTo(cx+w2+sleeveW*0.3, sleeveD+shirtH*0.05);
+    ctx.lineTo(cx+w2+sleeveW, sleeveD);
+    ctx.lineTo(cx+w2, sleeveD*0.4);
+    ctx.lineTo(cx+neckW, neckD);
+    ctx.quadraticCurveTo(cx, neckD+shirtH*0.05, cx-neckW, neckD);
+    ctx.closePath();
+  }
+
   function renderShirtPreview(){
     if(!sourceData) return;
-    const pad=40;
-    // Shirt dimensions: aspect ratio roughly like a t-shirt front
-    const shirtW=srcW+pad*2, shirtH=Math.max(srcH+pad*2, Math.round(srcW*1.3));
+    const pad=60;
+    const shirtW=srcW+pad*2, shirtH=Math.max(srcH+pad*2, Math.round(srcW*1.4));
     shirtCanvas.width=shirtW; shirtCanvas.height=shirtH;
 
-    // Draw shirt body shape
-    sCtx.clearRect(0,0,shirtW,shirtH);
+    const cx=shirtW/2, w2=shirtW*0.46, sh=shirtH*0.93;
+    const neckW=shirtW*0.11, neckD=shirtH*0.055;
+    const sleeveW=shirtW*0.16, sleeveD=shirtH*0.24;
+
+    // 1) Hintergrund (Umgebung um das Shirt)
+    const isDark=document.body.classList.contains('dark');
+    sCtx.fillStyle=isDark?'#111':'#e8e8e8';
+    sCtx.fillRect(0,0,shirtW,shirtH);
+
+    // 2) Shirt-Schatten
+    sCtx.save();
+    sCtx.shadowColor='rgba(0,0,0,0.25)';
+    sCtx.shadowBlur=20;
+    sCtx.shadowOffsetY=8;
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
     sCtx.fillStyle=shirtColorHex;
+    sCtx.fill();
+    sCtx.restore();
 
-    // Simple T-shirt silhouette
-    const cx=shirtW/2, w2=shirtW*0.48, sh=shirtH*0.95;
-    const neckW=shirtW*0.12, neckD=shirtH*0.06;
-    const sleeveW=shirtW*0.15, sleeveD=shirtH*0.22;
-
-    sCtx.beginPath();
-    // Left shoulder to left sleeve
-    sCtx.moveTo(cx-neckW, neckD);
-    sCtx.lineTo(cx-w2, sleeveD*0.4);
-    sCtx.lineTo(cx-w2-sleeveW, sleeveD);
-    sCtx.lineTo(cx-w2-sleeveW*0.3, sleeveD+shirtH*0.05);
-    sCtx.lineTo(cx-w2, sleeveD*0.8);
-    // Left side down
-    sCtx.lineTo(cx-w2*0.95, sh);
-    // Bottom
-    sCtx.lineTo(cx+w2*0.95, sh);
-    // Right side up
-    sCtx.lineTo(cx+w2, sleeveD*0.8);
-    sCtx.lineTo(cx+w2+sleeveW*0.3, sleeveD+shirtH*0.05);
-    sCtx.lineTo(cx+w2+sleeveW, sleeveD);
-    sCtx.lineTo(cx+w2, sleeveD*0.4);
-    // Right shoulder to neck
-    sCtx.lineTo(cx+neckW, neckD);
-    // Neckline (curve)
-    sCtx.quadraticCurveTo(cx, neckD+shirtH*0.04, cx-neckW, neckD);
-    sCtx.closePath();
+    // 3) Shirt-Farbe nochmal sauber (ohne Schatten)
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    sCtx.fillStyle=shirtColorHex;
     sCtx.fill();
 
-    // Slight shading for 3D effect
-    const grad=sCtx.createLinearGradient(0,0,shirtW,shirtH);
-    grad.addColorStop(0,'rgba(255,255,255,0.06)');
-    grad.addColorStop(0.5,'rgba(0,0,0,0)');
-    grad.addColorStop(1,'rgba(0,0,0,0.1)');
-    sCtx.fillStyle=grad;
-    sCtx.fill();
+    // 4) Subtile Textilstruktur (Gewebelinien)
+    sCtx.save();
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    sCtx.clip();
+    sCtx.globalAlpha=0.03;
+    sCtx.strokeStyle=isDark?'#fff':'#000';
+    sCtx.lineWidth=0.5;
+    for(let y=0;y<shirtH;y+=3){
+      sCtx.beginPath(); sCtx.moveTo(0,y); sCtx.lineTo(shirtW,y); sCtx.stroke();
+    }
+    sCtx.globalAlpha=1;
+    sCtx.restore();
 
-    // Draw the halftone design centered on chest
-    const designX=pad, designY=pad+shirtH*0.05;
-    // Composite: design on shirt (transparent areas show shirt)
+    // 5) 3D-Faltenschatten
+    sCtx.save();
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    sCtx.clip();
+    // Linke Seite: leichter Lichtschein
+    const lg=sCtx.createLinearGradient(cx-w2,0,cx+w2,0);
+    lg.addColorStop(0,'rgba(255,255,255,0.07)');
+    lg.addColorStop(0.3,'rgba(255,255,255,0)');
+    lg.addColorStop(0.7,'rgba(0,0,0,0)');
+    lg.addColorStop(1,'rgba(0,0,0,0.08)');
+    sCtx.fillStyle=lg;
+    sCtx.fillRect(0,0,shirtW,shirtH);
+    // Vertikale Faltenlinie Mitte
+    const fg=sCtx.createLinearGradient(cx-2,0,cx+2,0);
+    fg.addColorStop(0,'rgba(0,0,0,0)');
+    fg.addColorStop(0.5,'rgba(0,0,0,0.04)');
+    fg.addColorStop(1,'rgba(0,0,0,0)');
+    sCtx.fillStyle=fg;
+    sCtx.fillRect(cx-15,neckD+shirtH*0.08,30,shirtH*0.7);
+    sCtx.restore();
+
+    // 6) Design auf Shirt zeichnen — transparente Pixel zeigen Shirtfarbe
+    const designX=Math.round((shirtW-srcW)/2);
+    const designY=Math.round(pad+shirtH*0.06);
+    sCtx.save();
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    sCtx.clip();
     sCtx.drawImage(renderCanvas, designX, designY, srcW, srcH);
+    sCtx.restore();
+
+    // 7) Shirt-Kontur
+    sCtx.save();
+    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    sCtx.strokeStyle=isDark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.1)';
+    sCtx.lineWidth=1;
+    sCtx.stroke();
+    sCtx.restore();
   }
 
   // ─── View Toggle ───
@@ -755,8 +802,8 @@
   // ─── Zoom & Pan ───
   function zoomToFit(){
     const r=canvasArea.getBoundingClientRect();
-    const cw=(currentView==='shirt')?srcW+80:srcW;
-    const ch=(currentView==='shirt')?Math.max(srcH+80,Math.round(srcW*1.3)):srcH;
+    const cw=(currentView==='shirt')?srcW+120:srcW;
+    const ch=(currentView==='shirt')?Math.max(srcH+120,Math.round(srcW*1.4)):srcH;
     zoom=Math.min((r.width-40)/cw,(r.height-40)/ch,1);
     panX=(r.width-cw*zoom)/2;panY=(r.height-ch*zoom)/2;
     updateViewTransform();
@@ -937,14 +984,186 @@
 
   // ─── Effects ───
   function applyEffects(){
-    const w=renderCanvas.width,h=renderCanvas.height;
-    if(getChecked('fx_grain')){const int=getNum('fx_grain_int')/100;const id=rCtx.getImageData(0,0,w,h);const d=id.data;const rng=mulberry32(noiseSeed);for(let i=0;i<d.length;i+=4){if(d[i+3]===0)continue;const n=(rng()-0.5)*2*int*80;d[i]=Math.max(0,Math.min(255,d[i]+n));d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));d[i+2]=Math.max(0,Math.min(255,d[i+2]+n));}rCtx.putImageData(id,0,0);}
-    if(getChecked('fx_dirt')){const int=getNum('fx_dirt_int')/100;const off=document.createElement('canvas');off.width=w;off.height=h;const oc=off.getContext('2d');const id=oc.createImageData(w,h);const d=id.data;for(let y=0;y<h;y++)for(let x=0;x<w;x++){let n=Perlin.fbm(x*0.004,y*0.004,6,0.5,2.0);n=(n+1)/2;const n2=Perlin.fbm(x*0.001+100,y*0.001+100,3,0.7,2.0);n=n*0.7+((n2+1)/2)*0.3;const v=Math.floor(200+n*55);const i=(y*w+x)*4;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}oc.putImageData(id,0,0);rCtx.globalCompositeOperation='multiply';rCtx.globalAlpha=int*0.6;rCtx.drawImage(off,0,0);rCtx.globalCompositeOperation='source-over';rCtx.globalAlpha=1;}
-    if(getChecked('fx_scratches')){const int=getNum('fx_scratches_int')/100;const rng=mulberry32(noiseSeed+1);const num=Math.floor(20+int*80);rCtx.globalCompositeOperation='screen';for(let i=0;i<num;i++){rCtx.strokeStyle=`rgba(200,200,200,${0.03+rng()*int*0.15})`;rCtx.lineWidth=0.3+rng()*1.5;rCtx.beginPath();const sx=rng()*w,sy=rng()*h,len=30+rng()*Math.min(w,h)*0.4,a=rng()*Math.PI;rCtx.moveTo(sx,sy);rCtx.quadraticCurveTo(sx+len*0.5*Math.cos(a)+(rng()-0.5)*20,sy+len*0.5*Math.sin(a)+(rng()-0.5)*20,sx+len*Math.cos(a),sy+len*Math.sin(a));rCtx.stroke();}rCtx.globalCompositeOperation='source-over';}
-    if(getChecked('fx_dust')){const int=getNum('fx_dust_int')/100;const rng=mulberry32(noiseSeed+2);const num=Math.floor(100+int*600);for(let i=0;i<num;i++){const br=rng()>0.5;rCtx.globalCompositeOperation=br?'screen':'multiply';rCtx.fillStyle=br?`rgba(255,255,255,${0.05+rng()*int*0.25})`:`rgba(0,0,0,${0.05+rng()*int*0.25})`;rCtx.beginPath();rCtx.arc(rng()*w,rng()*h,0.3+rng()*2,0,Math.PI*2);rCtx.fill();}rCtx.globalCompositeOperation='source-over';}
-    if(getChecked('fx_splatter')){const int=getNum('fx_splatter_int')/100;const rng=mulberry32(noiseSeed+3);rCtx.globalCompositeOperation='multiply';for(let s=0;s<Math.floor(5+int*25);s++){const sx=rng()*w,sy=rng()*h,mr=3+rng()*15,op=0.02+rng()*int*0.08;rCtx.fillStyle=`rgba(30,30,30,${op})`;rCtx.beginPath();rCtx.arc(sx,sy,mr,0,Math.PI*2);rCtx.fill();for(let d=0;d<Math.floor(3+rng()*12);d++){const da=rng()*Math.PI*2,dd=mr+rng()*mr*3;rCtx.fillStyle=`rgba(30,30,30,${op*(0.5+rng()*0.5)})`;rCtx.beginPath();rCtx.arc(sx+Math.cos(da)*dd,sy+Math.sin(da)*dd,0.5+rng()*3,0,Math.PI*2);rCtx.fill();}}rCtx.globalCompositeOperation='source-over';}
-    if(getChecked('fx_worn')){const int=getNum('fx_worn_int')/100;const off=document.createElement('canvas');off.width=w;off.height=h;const oc=off.getContext('2d');const id=oc.createImageData(w,h);const d=id.data;const rng=mulberry32(noiseSeed+4);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let n=Perlin.fbm(x*0.02+500,y*0.02+500,4,0.5,2.5);n=(n+1)/2;n=Math.max(0,Math.min(1,n+(rng()-0.5)*0.3));const v=n>0.55?255:Math.floor(n/0.55*255);const i=(y*w+x)*4;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}oc.putImageData(id,0,0);rCtx.globalCompositeOperation='screen';rCtx.globalAlpha=int*0.45;rCtx.drawImage(off,0,0);rCtx.globalCompositeOperation='source-over';rCtx.globalAlpha=1;}
-    if(getChecked('fx_vignette')){const int=getNum('fx_vignette_int')/100;const grad=rCtx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.2,w/2,h/2,Math.max(w,h)*0.7);grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(1,`rgba(0,0,0,${int*0.7})`);rCtx.globalCompositeOperation='multiply';rCtx.fillStyle=grad;rCtx.fillRect(0,0,w,h);rCtx.globalCompositeOperation='source-over';}
+    // ─── Eraser-Mode: Alle Effekte entfernen Alpha → erzeugen Transparenz ───
+    const w=renderCanvas.width, h=renderCanvas.height;
+    const imgData=rCtx.getImageData(0,0,w,h);
+    const d=imgData.data;
+    let changed=false;
+
+    // Grain: zufällige per-Pixel Alpha-Reduktion (körnige Erosion)
+    if(getChecked('fx_grain')){
+      const int=getNum('fx_grain_int')/100;
+      const rng=mulberry32(noiseSeed);
+      for(let i=0;i<d.length;i+=4){
+        if(d[i+3]===0) continue;
+        const erode=rng()*int;
+        d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+      }
+      changed=true;
+    }
+
+    // Dirt: organische Perlin-Noise-Flecken löschen Alpha
+    if(getChecked('fx_dirt')){
+      const int=getNum('fx_dirt_int')/100;
+      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+        const i=(y*w+x)*4;
+        if(d[i+3]===0) continue;
+        let n=Perlin.fbm(x*0.004,y*0.004,6,0.5,2.0);
+        n=(n+1)/2;
+        const n2=Perlin.fbm(x*0.001+100,y*0.001+100,3,0.7,2.0);
+        n=n*0.7+((n2+1)/2)*0.3;
+        // Dunkle Noise-Bereiche = stärkere Erosion
+        const erode=Math.max(0,(1-n)*int*1.5);
+        if(erode>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+      }
+      changed=true;
+    }
+
+    // Scratches: Kratzerlinien als Alpha-Radierer
+    if(getChecked('fx_scratches')){
+      const int=getNum('fx_scratches_int')/100;
+      const rng=mulberry32(noiseSeed+1);
+      const num=Math.floor(20+int*80);
+      // Kratzer auf Offscreen-Canvas zeichnen, dann als Maske nutzen
+      const off=document.createElement('canvas');
+      off.width=w; off.height=h;
+      const oc=off.getContext('2d');
+      oc.fillStyle='black'; oc.fillRect(0,0,w,h);
+      oc.strokeStyle='white'; oc.lineCap='round';
+      for(let s=0;s<num;s++){
+        oc.lineWidth=0.5+rng()*2.5;
+        oc.globalAlpha=0.3+rng()*0.7;
+        oc.beginPath();
+        const sx=rng()*w, sy=rng()*h;
+        const len=30+rng()*Math.min(w,h)*0.4, a=rng()*Math.PI;
+        oc.moveTo(sx,sy);
+        oc.quadraticCurveTo(
+          sx+len*0.5*Math.cos(a)+(rng()-0.5)*20,
+          sy+len*0.5*Math.sin(a)+(rng()-0.5)*20,
+          sx+len*Math.cos(a), sy+len*Math.sin(a)
+        );
+        oc.stroke();
+      }
+      oc.globalAlpha=1;
+      const mask=oc.getImageData(0,0,w,h).data;
+      for(let i=0;i<d.length;i+=4){
+        if(d[i+3]===0) continue;
+        const bright=mask[i]/255; // 0=schwarz(kein Kratzer), 1=weiß(Kratzer)
+        if(bright>0.05){
+          const erode=bright*int;
+          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+        }
+      }
+      changed=true;
+    }
+
+    // Dust: kleine Partikel-Löcher im Alpha
+    if(getChecked('fx_dust')){
+      const int=getNum('fx_dust_int')/100;
+      const rng=mulberry32(noiseSeed+2);
+      const num=Math.floor(100+int*600);
+      // Partikel-Positionen sammeln, dann im Pixelbuffer löschen
+      for(let p=0;p<num;p++){
+        const cx=rng()*w, cy=rng()*h;
+        const r=0.5+rng()*2.5;
+        const strength=0.4+rng()*0.6;
+        const r2=r*r;
+        const x0=Math.max(0,Math.floor(cx-r)), x1=Math.min(w-1,Math.ceil(cx+r));
+        const y0=Math.max(0,Math.floor(cy-r)), y1=Math.min(h-1,Math.ceil(cy+r));
+        for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
+          const dx=x-cx, dy=y-cy;
+          if(dx*dx+dy*dy<=r2){
+            const i=(y*w+x)*4;
+            if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*int)));
+          }
+        }
+      }
+      changed=true;
+    }
+
+    // Splatter: große abgeplatzte Bereiche + Tropfen (wie abblätternde Farbe)
+    if(getChecked('fx_splatter')){
+      const int=getNum('fx_splatter_int')/100;
+      const rng=mulberry32(noiseSeed+3);
+      const numBlobs=Math.floor(5+int*25);
+      for(let s=0;s<numBlobs;s++){
+        const cx=rng()*w, cy=rng()*h;
+        const mr=5+rng()*20*int;
+        const strength=0.5+rng()*0.5;
+        const mr2=mr*mr;
+        const x0=Math.max(0,Math.floor(cx-mr)), x1=Math.min(w-1,Math.ceil(cx+mr));
+        const y0=Math.max(0,Math.floor(cy-mr)), y1=Math.min(h-1,Math.ceil(cy+mr));
+        for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
+          const dx=x-cx, dy=y-cy;
+          const dist2=dx*dx+dy*dy;
+          if(dist2<=mr2){
+            const falloff=1-Math.sqrt(dist2)/mr;
+            const i=(y*w+x)*4;
+            if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*falloff*int)));
+          }
+        }
+        // Tropfen drumherum
+        const numDrops=Math.floor(3+rng()*12);
+        for(let dd=0;dd<numDrops;dd++){
+          const da=rng()*Math.PI*2, dist=mr+rng()*mr*3;
+          const dx2=cx+Math.cos(da)*dist, dy2=cy+Math.sin(da)*dist;
+          const dr=1+rng()*4;
+          const dr2=dr*dr;
+          const bx0=Math.max(0,Math.floor(dx2-dr)), bx1=Math.min(w-1,Math.ceil(dx2+dr));
+          const by0=Math.max(0,Math.floor(dy2-dr)), by1=Math.min(h-1,Math.ceil(dy2+dr));
+          for(let y=by0;y<=by1;y++) for(let x=bx0;x<=bx1;x++){
+            const ddx=x-dx2, ddy=y-dy2;
+            if(ddx*ddx+ddy*ddy<=dr2){
+              const i=(y*w+x)*4;
+              if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*0.7*int)));
+            }
+          }
+        }
+      }
+      changed=true;
+    }
+
+    // Worn: großflächige Perlin-Noise-Erosion
+    if(getChecked('fx_worn')){
+      const int=getNum('fx_worn_int')/100;
+      const rng=mulberry32(noiseSeed+4);
+      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+        const i=(y*w+x)*4;
+        if(d[i+3]===0) continue;
+        let n=Perlin.fbm(x*0.008+500,y*0.008+500,4,0.5,2.5);
+        n=(n+1)/2;
+        // Noise-Varianz hinzufügen
+        n=Math.max(0,Math.min(1, n+(rng()-0.5)*0.15));
+        // Schwellenwert: unter threshold → Alpha-Erosion
+        const threshold=0.3+int*0.45;
+        if(n<threshold){
+          const erode=(1-n/threshold)*int;
+          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+        }
+      }
+      changed=true;
+    }
+
+    // Vignette: radiale Alpha-Verblassung vom Rand
+    if(getChecked('fx_vignette')){
+      const int=getNum('fx_vignette_int')/100;
+      const cx=w/2, cy=h/2;
+      const maxR=Math.max(w,h)*0.7;
+      const innerR=Math.min(w,h)*0.2;
+      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+        const i=(y*w+x)*4;
+        if(d[i+3]===0) continue;
+        const dist=Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy));
+        if(dist>innerR){
+          const t=Math.min(1,(dist-innerR)/(maxR-innerR));
+          const erode=t*t*int;
+          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+        }
+      }
+      changed=true;
+    }
+
+    if(changed) rCtx.putImageData(imgData,0,0);
   }
 
   // ─── Export PNG ───
