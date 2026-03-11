@@ -18,7 +18,7 @@
   .badge { font-size: 10px; color: var(--text-dim); background: var(--surface2); padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border); }
   .layout { display: flex; height: calc(100vh - 49px); }
 
-  .sidebar { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .sidebar { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 10; }
   .sidebar::-webkit-scrollbar { width: 4px; } .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   .section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 8px; }
   .control-group { display: flex; flex-direction: column; gap: 6px; }
@@ -357,6 +357,9 @@
           <div class="hint" style="margin-bottom:4px;">Shirt-Farbe — wo dein Design transparent ist, scheint die Textilfarbe durch:</div>
           <div class="swatch-row" id="shirtSwatches"></div>
           <div class="color-row" style="margin-top:6px;"><input type="color" id="shirtColor" value="#ffffff"><span>Custom Farbe</span></div>
+          <label style="margin-top:6px;">Design-Groesse <span class="value" id="mockupScaleVal">60%</span></label>
+          <input type="range" id="mockupScale" min="10" max="100" value="60">
+          <div class="hint">Design im Mockup verschieben: Ziehen mit der Maus auf dem Bild.</div>
         </div>
       </div>
       <div class="hint" id="pngInfoHint">Bild laden um Infos zu sehen</div>
@@ -430,6 +433,10 @@
   let zoom=1, panX=0, panY=0;
   let isDragging=false, dragStartX=0, dragStartY=0, panStartX=0, panStartY=0;
   let isPicking=false;
+  // Mockup state
+  let mockupImg=null, mockupImgProcessed=null;
+  let mockupDesignX=0.5, mockupDesignY=0.35; // relative position (0-1) on mockup
+  let mockupDragging=false, mockupDragStartX=0, mockupDragStartY=0;
   let lastDotCount=0, lastCoverage=0;
 
   const renderCanvas=document.createElement('canvas');
@@ -671,106 +678,131 @@
     document.getElementById('pngInfoHint').style.display='none';
   }
 
-  // ─── Shirt Preview ───
-  function shirtPath(ctx, cx, w2, sh, neckW, neckD, sleeveW, sleeveD, shirtH){
-    ctx.beginPath();
-    ctx.moveTo(cx-neckW, neckD);
-    ctx.lineTo(cx-w2, sleeveD*0.4);
-    ctx.lineTo(cx-w2-sleeveW, sleeveD);
-    ctx.lineTo(cx-w2-sleeveW*0.3, sleeveD+shirtH*0.05);
-    ctx.lineTo(cx-w2, sleeveD*0.8);
-    ctx.lineTo(cx-w2*0.95, sh);
-    ctx.quadraticCurveTo(cx, sh+shirtH*0.02, cx+w2*0.95, sh);
-    ctx.lineTo(cx+w2, sleeveD*0.8);
-    ctx.lineTo(cx+w2+sleeveW*0.3, sleeveD+shirtH*0.05);
-    ctx.lineTo(cx+w2+sleeveW, sleeveD);
-    ctx.lineTo(cx+w2, sleeveD*0.4);
-    ctx.lineTo(cx+neckW, neckD);
-    ctx.quadraticCurveTo(cx, neckD+shirtH*0.05, cx-neckW, neckD);
-    ctx.closePath();
+  // ─── Shirt Mockup Preview (EP01 Photo) ───
+  const MOCKUP_URL='https://cdn.shopify.com/s/files/1/0749/9176/3676/files/01KF2GTFEE52VQK6QFMTBYXCSD.webp?v=1768559163&width=800';
+  const MOCKUP_W=800, MOCKUP_H=1066; // aspect ratio of the source image
+
+  function loadMockupImage(cb){
+    if(mockupImgProcessed){ cb(); return; }
+    if(mockupImg){ return; } // loading in progress
+    mockupImg=new Image();
+    mockupImg.crossOrigin='anonymous';
+    mockupImg.onload=function(){
+      // Remove white background → transparent
+      const c=document.createElement('canvas');
+      c.width=mockupImg.naturalWidth; c.height=mockupImg.naturalHeight;
+      const cx=c.getContext('2d');
+      cx.drawImage(mockupImg,0,0);
+      const id=cx.getImageData(0,0,c.width,c.height);
+      const d=id.data;
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i],g=d[i+1],b=d[i+2];
+        // White/near-white background detection
+        const brightness=(r+g+b)/3;
+        const saturation=Math.max(r,g,b)-Math.min(r,g,b);
+        if(brightness>235 && saturation<25){
+          // Smooth falloff near edges
+          const fade=Math.max(0, (brightness-235)/20);
+          d[i+3]=Math.round(d[i+3]*(1-fade));
+        }
+      }
+      cx.putImageData(id,0,0);
+      // Store as processed image
+      mockupImgProcessed=new Image();
+      mockupImgProcessed.onload=cb;
+      mockupImgProcessed.src=c.toDataURL();
+    };
+    mockupImg.onerror=function(){
+      // Fallback: use without processing
+      mockupImgProcessed=mockupImg;
+      cb();
+    };
+    mockupImg.src=MOCKUP_URL;
   }
 
   function renderShirtPreview(){
     if(!sourceData) return;
-    const pad=60;
-    const shirtW=srcW+pad*2, shirtH=Math.max(srcH+pad*2, Math.round(srcW*1.4));
-    shirtCanvas.width=shirtW; shirtCanvas.height=shirtH;
+    loadMockupImage(()=>renderShirtMockup());
+  }
 
-    const cx=shirtW/2, w2=shirtW*0.46, sh=shirtH*0.93;
-    const neckW=shirtW*0.11, neckD=shirtH*0.055;
-    const sleeveW=shirtW*0.16, sleeveD=shirtH*0.24;
+  function renderShirtMockup(){
+    if(!sourceData || !mockupImgProcessed) return;
+    const mW=MOCKUP_W, mH=MOCKUP_H;
+    shirtCanvas.width=mW; shirtCanvas.height=mH;
 
-    // 1) Hintergrund (Umgebung um das Shirt)
-    const isDark=document.body.classList.contains('dark');
-    sCtx.fillStyle=isDark?'#111':'#e8e8e8';
-    sCtx.fillRect(0,0,shirtW,shirtH);
-
-    // 2) Shirt-Schatten
-    sCtx.save();
-    sCtx.shadowColor='rgba(0,0,0,0.25)';
-    sCtx.shadowBlur=20;
-    sCtx.shadowOffsetY=8;
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
+    // 1) Hintergrund-Farbe (wo das Weiß des Fotos entfernt wurde)
     sCtx.fillStyle=shirtColorHex;
-    sCtx.fill();
+    sCtx.fillRect(0,0,mW,mH);
+
+    // 2) Modelfoto zeichnen (mit entferntem Hintergrund)
+    sCtx.drawImage(mockupImgProcessed,0,0,mW,mH);
+
+    // 3) Design auf dem Brustbereich mit Multiply-Blend
+    const scale=getNum('mockupScale')/100;
+    const designW=Math.round(mW*0.55*scale);
+    const designH=Math.round(designW*(srcH/srcW));
+    const designX=Math.round(mockupDesignX*mW - designW/2);
+    const designY=Math.round(mockupDesignY*mH - designH/2);
+
+    sCtx.save();
+    sCtx.globalCompositeOperation='multiply';
+    sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
     sCtx.restore();
 
-    // 3) Shirt-Farbe nochmal sauber (ohne Schatten)
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
-    sCtx.fillStyle=shirtColorHex;
-    sCtx.fill();
+    // 4) Nochmal das Foto drüber für Bereiche außerhalb des Shirts
+    //    (Haut, Haare, Jeans sollen das Design verdecken)
+    //    Wir zeichnen das Foto erneut mit source-atop wo bereits Pixel sind
+    //    Trick: Nur die nicht-transparenten Foto-Bereiche außerhalb der Shirt-Zone
+    //    Vereinfachung: Wir malen das Design nochmal mit 'destination-in' um es
+    //    auf die Foto-Bereiche zu beschränken — aber das ist komplex.
+    //    Stattdessen: Design einfach halbtransparent zeichnen für natürlichen Look.
 
-    // 4) Subtile Textilstruktur (Gewebelinien)
+    // Alternative: Design nochmal normal drüber um Transparenz-Löcher zu zeigen
     sCtx.save();
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
-    sCtx.clip();
-    sCtx.globalAlpha=0.03;
-    sCtx.strokeStyle=isDark?'#fff':'#000';
-    sCtx.lineWidth=0.5;
-    for(let y=0;y<shirtH;y+=3){
-      sCtx.beginPath(); sCtx.moveTo(0,y); sCtx.lineTo(shirtW,y); sCtx.stroke();
-    }
-    sCtx.globalAlpha=1;
+    sCtx.globalAlpha=0.15;
+    sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
     sCtx.restore();
 
-    // 5) 3D-Faltenschatten
+    // 5) Dashed Rahmen um Design-Position
     sCtx.save();
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
-    sCtx.clip();
-    // Linke Seite: leichter Lichtschein
-    const lg=sCtx.createLinearGradient(cx-w2,0,cx+w2,0);
-    lg.addColorStop(0,'rgba(255,255,255,0.07)');
-    lg.addColorStop(0.3,'rgba(255,255,255,0)');
-    lg.addColorStop(0.7,'rgba(0,0,0,0)');
-    lg.addColorStop(1,'rgba(0,0,0,0.08)');
-    sCtx.fillStyle=lg;
-    sCtx.fillRect(0,0,shirtW,shirtH);
-    // Vertikale Faltenlinie Mitte
-    const fg=sCtx.createLinearGradient(cx-2,0,cx+2,0);
-    fg.addColorStop(0,'rgba(0,0,0,0)');
-    fg.addColorStop(0.5,'rgba(0,0,0,0.04)');
-    fg.addColorStop(1,'rgba(0,0,0,0)');
-    sCtx.fillStyle=fg;
-    sCtx.fillRect(cx-15,neckD+shirtH*0.08,30,shirtH*0.7);
-    sCtx.restore();
-
-    // 6) Design auf Shirt zeichnen — transparente Pixel zeigen Shirtfarbe
-    const designX=Math.round((shirtW-srcW)/2);
-    const designY=Math.round(pad+shirtH*0.06);
-    sCtx.save();
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
-    sCtx.clip();
-    sCtx.drawImage(renderCanvas, designX, designY, srcW, srcH);
-    sCtx.restore();
-
-    // 7) Shirt-Kontur
-    sCtx.save();
-    shirtPath(sCtx,cx,w2,sh,neckW,neckD,sleeveW,sleeveD,shirtH);
-    sCtx.strokeStyle=isDark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.1)';
+    sCtx.strokeStyle='rgba(255,255,255,0.3)';
     sCtx.lineWidth=1;
-    sCtx.stroke();
+    sCtx.setLineDash([4,4]);
+    sCtx.strokeRect(designX, designY, designW, designH);
     sCtx.restore();
   }
+
+  // Mockup design drag
+  document.getElementById('mockupScale').addEventListener('input',function(){
+    document.getElementById('mockupScaleVal').textContent=this.value+'%';
+    if(currentView==='shirt') renderShirtPreview();
+  });
+
+  canvasArea.addEventListener('mousedown',function(e){
+    if(currentView!=='shirt' || !sourceData || e.button!==0) return;
+    // Check if in mockup drag mode
+    if(!isPicking){
+      mockupDragging=true;
+      mockupDragStartX=e.clientX;
+      mockupDragStartY=e.clientY;
+      e.stopPropagation(); // prevent pan
+    }
+  }, true); // capture phase to intercept before pan handler
+
+  window.addEventListener('mousemove',function(e){
+    if(!mockupDragging) return;
+    const r=canvasArea.getBoundingClientRect();
+    // Convert mouse position to mockup canvas coordinates
+    const mx=(e.clientX-r.left-panX)/zoom;
+    const my=(e.clientY-r.top-panY)/zoom;
+    mockupDesignX=Math.max(0.1, Math.min(0.9, mx/MOCKUP_W));
+    mockupDesignY=Math.max(0.1, Math.min(0.9, my/MOCKUP_H));
+    renderShirtMockup();
+  });
+
+  window.addEventListener('mouseup',function(){
+    mockupDragging=false;
+  });
 
   // ─── View Toggle ───
   function setView(v){
@@ -802,8 +834,8 @@
   // ─── Zoom & Pan ───
   function zoomToFit(){
     const r=canvasArea.getBoundingClientRect();
-    const cw=(currentView==='shirt')?srcW+120:srcW;
-    const ch=(currentView==='shirt')?Math.max(srcH+120,Math.round(srcW*1.4)):srcH;
+    const cw=(currentView==='shirt')?MOCKUP_W:srcW;
+    const ch=(currentView==='shirt')?MOCKUP_H:srcH;
     zoom=Math.min((r.width-40)/cw,(r.height-40)/ch,1);
     panX=(r.width-cw*zoom)/2;panY=(r.height-ch*zoom)/2;
     updateViewTransform();
@@ -815,7 +847,7 @@
   }
 
   canvasArea.addEventListener('wheel',e=>{if(!sourceData)return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
-  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
+  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}if(mockupDragging)return;isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
   window.addEventListener('mousemove',e=>{if(!isDragging)return;panX=panStartX+(e.clientX-dragStartX);panY=panStartY+(e.clientY-dragStartY);updateViewTransform();});
   window.addEventListener('mouseup',()=>{isDragging=false;canvasArea.classList.remove('dragging');});
   document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(20,zoom*1.3);updateViewTransform();});
