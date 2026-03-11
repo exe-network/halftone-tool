@@ -66,6 +66,10 @@
   .drop-text span { color: var(--accent); text-decoration: underline; cursor: pointer; }
   .hidden-input { display: none; }
 
+  /* Close button */
+  .close-btn { position: absolute; top: 10px; right: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); cursor: pointer; padding: 4px 8px; font-size: 14px; font-family: inherit; z-index: 5; transition: all 0.15s; display: none; }
+  .close-btn:hover { border-color: #f44; color: #f44; }
+
   /* Zoom bar */
   .zoom-bar { position: absolute; bottom: 10px; right: 12px; display: flex; gap: 6px; align-items: center; background: var(--surface); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; color: var(--text-dim); z-index: 5; }
   .zoom-bar button { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 2px 4px; font-family: inherit; }
@@ -390,6 +394,7 @@
     <canvas id="viewCanvas" style="display:none;"></canvas>
     <canvas id="originalCanvas" style="display:none; position:absolute; top:0; left:0; transform-origin:0 0;"></canvas>
     <canvas id="alphaCanvas"></canvas>
+    <button class="close-btn" id="closeBtn" title="Bild entfernen">✕</button>
     <input type="file" accept="image/*" class="hidden-input" id="fileInput">
     <div class="info-bar" id="infoBar" style="display:none;">
       <span id="infoSize"></span>
@@ -606,6 +611,7 @@
 
         dropZone.classList.add('hidden');
         viewCanvas.style.display = 'block';
+        document.getElementById('closeBtn').style.display = 'block';
         document.getElementById('zoomBar').style.display = 'flex';
         document.getElementById('infoBar').style.display = 'flex';
         document.getElementById('infoSize').textContent = `${srcW}×${srcH}`;
@@ -709,6 +715,24 @@
     const btn = e.target.closest('button');
     if (!btn || !sourceData) return;
     setView(btn.dataset.view);
+  });
+
+  // ─── Close / Reset Image ───
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    sourceData = null; alphaData = null; backupData = null; pngFileBuffer = null;
+    srcW = 0; srcH = 0;
+    viewCanvas.style.display = 'none';
+    originalCanvas.style.display = 'none';
+    alphaCanvas.style.display = 'none';
+    document.getElementById('closeBtn').style.display = 'none';
+    document.getElementById('zoomBar').style.display = 'none';
+    document.getElementById('infoBar').style.display = 'none';
+    document.getElementById('pngInfo').classList.remove('visible');
+    document.getElementById('pngInfoHint').style.display = '';
+    dropZone.classList.remove('hidden');
+    fileInput.value = '';
+    consentGiven = false;
+    currentView = 'halftone';
   });
 
   // ─── Zoom & Pan ───
