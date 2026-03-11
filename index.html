@@ -130,6 +130,13 @@
   .swatch:hover { transform: scale(1.15); }
   .swatch.active { border-color: var(--accent); }
 
+  /* Nav cross for shirt mode */
+  .nav-cross { position: absolute; bottom: 14px; right: 14px; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nav-cross button { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text-dim); font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+  .nav-cross button:hover { border-color: var(--accent); color: var(--text); }
+  .nav-cross-mid { display: flex; gap: 2px; }
+  .nav-cross-zoom { display: flex; gap: 2px; margin-top: 4px; }
+
   @media (max-width: 700px) {
     .layout { flex-direction: column; }
     .sidebar { width: 100%; min-width: 0; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
@@ -398,6 +405,20 @@
     <div class="info-bar" id="infoBar" style="display:none;"><span id="infoSize"></span><span id="infoDots"></span></div>
     <div class="zoom-bar" id="zoomBar" style="display:none;">
       <button id="zoomOut">−</button><span id="zoomLevel">100%</span><button id="zoomIn">+</button><button id="zoomFit">Fit</button>
+    </div>
+    <!-- Navigation cross for shirt mockup mode -->
+    <div class="nav-cross" id="navCross" style="display:none;">
+      <button data-dir="up" title="Nach oben">&#9650;</button>
+      <div class="nav-cross-mid">
+        <button data-dir="left" title="Nach links">&#9664;</button>
+        <button data-dir="fit" title="Einpassen" style="font-size:9px;">FIT</button>
+        <button data-dir="right" title="Nach rechts">&#9654;</button>
+      </div>
+      <button data-dir="down" title="Nach unten">&#9660;</button>
+      <div class="nav-cross-zoom">
+        <button data-dir="zout" title="Kleiner">−</button>
+        <button data-dir="zin" title="Größer">+</button>
+      </div>
     </div>
   </div>
 </div>
@@ -730,14 +751,41 @@
     const mW=MOCKUP_W, mH=MOCKUP_H;
     shirtCanvas.width=mW; shirtCanvas.height=mH;
 
-    // 1) Hintergrund-Farbe (wo das Weiß des Fotos entfernt wurde)
-    sCtx.fillStyle=shirtColorHex;
+    const isDark=document.body.classList.contains('dark');
+
+    // 1) Neutraler Hintergrund (Umgebung, NICHT Shirtfarbe)
+    sCtx.fillStyle=isDark?'#111':'#e8e8e8';
     sCtx.fillRect(0,0,mW,mH);
 
-    // 2) Modelfoto zeichnen (mit entferntem Hintergrund)
-    sCtx.drawImage(mockupImgProcessed,0,0,mW,mH);
+    // 2) Shirt-Farbe auf das Foto legen:
+    //    - Erst das Foto zeichnen (mit entferntem weißem Hintergrund)
+    //    - Dann Shirtfarbe mit 'multiply' drüber → färbt helle Bereiche (Shirt),
+    //      dunkle Bereiche (Haut, Haare, Jeans) bleiben weitgehend unverändert
+    //    - Wir nutzen ein Offscreen-Canvas dafür
 
-    // 3) Design auf dem Brustbereich mit Multiply-Blend
+    const off=document.createElement('canvas');
+    off.width=mW; off.height=mH;
+    const octx=off.getContext('2d');
+
+    // Foto zeichnen
+    octx.drawImage(mockupImgProcessed,0,0,mW,mH);
+
+    // Shirtfarbe mit multiply drüber → färbt das weiße/helle Shirt
+    octx.globalCompositeOperation='multiply';
+    octx.fillStyle=shirtColorHex;
+    octx.fillRect(0,0,mW,mH);
+    octx.globalCompositeOperation='source-over';
+
+    // Alpha vom Original-Foto wiederherstellen (multiply kann Alpha nicht ändern,
+    // aber wir stellen sicher dass der Hintergrund transparent bleibt)
+    octx.globalCompositeOperation='destination-in';
+    octx.drawImage(mockupImgProcessed,0,0,mW,mH);
+    octx.globalCompositeOperation='source-over';
+
+    // 3) Eingefärbtes Foto auf den Canvas
+    sCtx.drawImage(off,0,0);
+
+    // 4) Design auf dem Brustbereich mit Multiply-Blend
     const scale=getNum('mockupScale')/100;
     const designW=Math.round(mW*0.55*scale);
     const designH=Math.round(designW*(srcH/srcW));
@@ -749,25 +797,17 @@
     sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
     sCtx.restore();
 
-    // 4) Nochmal das Foto drüber für Bereiche außerhalb des Shirts
-    //    (Haut, Haare, Jeans sollen das Design verdecken)
-    //    Wir zeichnen das Foto erneut mit source-atop wo bereits Pixel sind
-    //    Trick: Nur die nicht-transparenten Foto-Bereiche außerhalb der Shirt-Zone
-    //    Vereinfachung: Wir malen das Design nochmal mit 'destination-in' um es
-    //    auf die Foto-Bereiche zu beschränken — aber das ist komplex.
-    //    Stattdessen: Design einfach halbtransparent zeichnen für natürlichen Look.
-
-    // Alternative: Design nochmal normal drüber um Transparenz-Löcher zu zeigen
+    // Design nochmal leicht normal drüber für bessere Sichtbarkeit der Farben
     sCtx.save();
-    sCtx.globalAlpha=0.15;
+    sCtx.globalAlpha=0.2;
     sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
     sCtx.restore();
 
     // 5) Dashed Rahmen um Design-Position
     sCtx.save();
-    sCtx.strokeStyle='rgba(255,255,255,0.3)';
+    sCtx.strokeStyle='rgba(255,255,255,0.35)';
     sCtx.lineWidth=1;
-    sCtx.setLineDash([4,4]);
+    sCtx.setLineDash([5,5]);
     sCtx.strokeRect(designX, designY, designW, designH);
     sCtx.restore();
   }
@@ -814,8 +854,12 @@
     shirtCanvas.style.display   =(v==='shirt')?'block':'none';
     document.getElementById('alphaLegend').style.display=(v==='alpha')?'':'none';
     document.getElementById('shirtControls').style.display=(v==='shirt')?'':'none';
+    // In shirt mode: nav cross instead of zoom bar + touchpad
+    document.getElementById('navCross').style.display=(v==='shirt'&&sourceData)?'flex':'none';
+    document.getElementById('zoomBar').style.display=(v!=='shirt'&&sourceData)?'flex':'none';
+    canvasArea.style.cursor=(v==='shirt')?'default':'grab';
     if(v==='shirt') renderShirtPreview();
-    updateViewTransform();
+    zoomToFit();
   }
   document.getElementById('viewToggle').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!sourceData)return;setView(b.dataset.view);});
 
@@ -825,6 +869,7 @@
     [viewCanvas,originalCanvas,alphaCanvas,shirtCanvas].forEach(c=>c.style.display='none');
     document.getElementById('closeBtn').style.display='none';
     document.getElementById('zoomBar').style.display='none';
+    document.getElementById('navCross').style.display='none';
     document.getElementById('infoBar').style.display='none';
     document.getElementById('pngInfo').classList.remove('visible');
     document.getElementById('pngInfoHint').style.display='';
@@ -846,13 +891,29 @@
     document.getElementById('zoomLevel').textContent=Math.round(zoom*100)+'%';
   }
 
-  canvasArea.addEventListener('wheel',e=>{if(!sourceData)return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
-  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}if(mockupDragging)return;isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
+  canvasArea.addEventListener('wheel',e=>{if(!sourceData||currentView==='shirt')return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
+  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}if(mockupDragging||currentView==='shirt')return;isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
   window.addEventListener('mousemove',e=>{if(!isDragging)return;panX=panStartX+(e.clientX-dragStartX);panY=panStartY+(e.clientY-dragStartY);updateViewTransform();});
   window.addEventListener('mouseup',()=>{isDragging=false;canvasArea.classList.remove('dragging');});
   document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(20,zoom*1.3);updateViewTransform();});
   document.getElementById('zoomOut').addEventListener('click',()=>{zoom=Math.max(0.05,zoom/1.3);updateViewTransform();});
   document.getElementById('zoomFit').addEventListener('click',zoomToFit);
+
+  // ─── Nav Cross (shirt mode navigation) ───
+  const navCross=document.getElementById('navCross');
+  const NAV_STEP=40;
+  navCross.addEventListener('click',e=>{
+    const btn=e.target.closest('button');if(!btn)return;
+    const dir=btn.dataset.dir;
+    if(dir==='up')   panY+=NAV_STEP;
+    if(dir==='down') panY-=NAV_STEP;
+    if(dir==='left') panX+=NAV_STEP;
+    if(dir==='right')panX-=NAV_STEP;
+    if(dir==='zin')  zoom=Math.min(20,zoom*1.25);
+    if(dir==='zout') zoom=Math.max(0.05,zoom/1.25);
+    if(dir==='fit')  { zoomToFit(); return; }
+    updateViewTransform();
+  });
 
   // ─── Background Removal ───
   document.getElementById('bgRemoveWhite').addEventListener('click',()=>removeBgColor(255,255,255));
