@@ -53,7 +53,7 @@
   .canvas-area.dragging { cursor: grabbing; }
   .canvas-area.picking { cursor: crosshair; }
   .checkerboard { position: absolute; inset: 0; background-size: 20px 20px; z-index: 0; pointer-events: none; }
-  #viewCanvas, #originalCanvas, #alphaCanvas, #shirtCanvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; }
+  #viewCanvas, #originalCanvas, #alphaCanvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; }
   .drop-zone { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 10; cursor: pointer; }
   .drop-zone.hidden { display: none; }
   .drop-zone.dragover { background: rgba(255,144,232,0.05); }
@@ -124,18 +124,13 @@
   .view-toggle button:hover { border-color: var(--accent); color: var(--text); }
   .view-toggle button.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  /* Shirt color swatches */
-  .swatch-row { display: flex; gap: 4px; flex-wrap: wrap; }
-  .swatch { width: 22px; height: 22px; border-radius: 4px; border: 2px solid transparent; cursor: pointer; transition: all 0.15s; }
-  .swatch:hover { transform: scale(1.15); }
-  .swatch.active { border-color: var(--accent); }
-
-  /* Nav cross for shirt mode */
-  .nav-cross { position: absolute; bottom: 14px; right: 14px; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .nav-cross button { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text-dim); font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
-  .nav-cross button:hover { border-color: var(--accent); color: var(--text); }
-  .nav-cross-mid { display: flex; gap: 2px; }
-  .nav-cross-zoom { display: flex; gap: 2px; margin-top: 4px; }
+  /* Effect dual sliders */
+  .fx-row { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
+  .fx-row-top { display: flex; align-items: center; gap: 6px; }
+  .fx-row-top label { flex: 1; min-width: 0; }
+  .fx-row-sliders { display: flex; gap: 4px; align-items: center; padding-left: 20px; }
+  .fx-row-sliders span { font-size: 9px; color: var(--text-dim); white-space: nowrap; min-width: 28px; }
+  .fx-row-sliders input[type="range"] { flex: 1; min-width: 0; }
 
   @media (max-width: 700px) {
     .layout { flex-direction: column; }
@@ -326,13 +321,13 @@
     <div>
       <div class="section-title">Textur-Effekte <span class="tip" data-tip="Radiergummi-Effekte: erzeugen Transparenz (Löcher im Druck), sodass das Textil durchscheint — wie ein alter, abgeblätterter Aufdruck. Grain = körnige Erosion, Dirt = organische Flecken, Scratches = Kratzer, Dust = Staubpartikel, Splatter = abgeplatzte Farbe, Worn = großflächig abgetragen, Vignette = Randverblassung.">?</span></div>
       <div class="control-group" id="effectsPanel">
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_grain"> Grain</label><input type="range" id="fx_grain_int" min="0" max="100" value="30" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_dirt"> Dirt</label><input type="range" id="fx_dirt_int" min="0" max="100" value="40" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_scratches"> Scratches</label><input type="range" id="fx_scratches_int" min="0" max="100" value="25" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_dust"> Dust</label><input type="range" id="fx_dust_int" min="0" max="100" value="20" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_splatter"> Splatter</label><input type="range" id="fx_splatter_int" min="0" max="100" value="35" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_worn"> Worn</label><input type="range" id="fx_worn_int" min="0" max="100" value="30" class="fx-slider"></div>
-        <div class="effect-row"><label class="checkbox-row"><input type="checkbox" id="fx_vignette"> Vignette</label><input type="range" id="fx_vignette_int" min="0" max="100" value="50" class="fx-slider"></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_grain"> Grain</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_grain_int" min="0" max="100" value="30"><span>Size</span><input type="range" id="fx_grain_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_dirt"> Dirt</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_dirt_int" min="0" max="100" value="40"><span>Size</span><input type="range" id="fx_dirt_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_scratches"> Scratches</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_scratches_int" min="0" max="100" value="25"><span>Size</span><input type="range" id="fx_scratches_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_dust"> Dust</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_dust_int" min="0" max="100" value="20"><span>Size</span><input type="range" id="fx_dust_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_splatter"> Splatter</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_splatter_int" min="0" max="100" value="35"><span>Size</span><input type="range" id="fx_splatter_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_worn"> Worn</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_worn_int" min="0" max="100" value="30"><span>Size</span><input type="range" id="fx_worn_size" min="1" max="100" value="50"></div></div>
+        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_vignette"> Vignette</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_vignette_int" min="0" max="100" value="50"><span>Size</span><input type="range" id="fx_vignette_size" min="1" max="100" value="50"></div></div>
         <div style="margin-top:4px"><label>Seed <span class="value" id="seedVal">500</span></label><input type="range" id="seedSlider" min="1" max="9999" value="500" step="1"></div>
         <button class="action-btn" id="reseedBtn">Zufälliger Seed</button>
       </div>
@@ -353,20 +348,11 @@
           <button class="active" data-view="halftone">Halftone</button>
           <button data-view="original">Original</button>
           <button data-view="alpha">Transparenz</button>
-          <button data-view="shirt">Shirt</button>
         </div>
         <div class="alpha-legend" id="alphaLegend" style="display:none;">
           <span><span class="dot" style="background:#ff3cd2"></span> Transparent</span>
           <span><span class="dot" style="background:#e0ff00"></span> Halbtransparent</span>
           <span><span class="dot" style="background:#232323"></span> Opak</span>
-        </div>
-        <div id="shirtControls" style="display:none;">
-          <div class="hint" style="margin-bottom:4px;">Shirt-Farbe — wo dein Design transparent ist, scheint die Textilfarbe durch:</div>
-          <div class="swatch-row" id="shirtSwatches"></div>
-          <div class="color-row" style="margin-top:6px;"><input type="color" id="shirtColor" value="#ffffff"><span>Custom Farbe</span></div>
-          <label style="margin-top:6px;">Design-Groesse <span class="value" id="mockupScaleVal">60%</span></label>
-          <input type="range" id="mockupScale" min="10" max="100" value="60">
-          <div class="hint">Design im Mockup verschieben: Ziehen mit der Maus auf dem Bild.</div>
         </div>
       </div>
       <div class="hint" id="pngInfoHint">Bild laden um Infos zu sehen</div>
@@ -399,26 +385,11 @@
     <canvas id="viewCanvas" style="display:none;"></canvas>
     <canvas id="originalCanvas" style="display:none;"></canvas>
     <canvas id="alphaCanvas" style="display:none;"></canvas>
-    <canvas id="shirtCanvas" style="display:none;"></canvas>
     <button class="close-btn" id="closeBtn" title="Bild entfernen">✕</button>
     <input type="file" accept="image/*" class="hidden-input" id="fileInput">
     <div class="info-bar" id="infoBar" style="display:none;"><span id="infoSize"></span><span id="infoDots"></span></div>
     <div class="zoom-bar" id="zoomBar" style="display:none;">
       <button id="zoomOut">−</button><span id="zoomLevel">100%</span><button id="zoomIn">+</button><button id="zoomFit">Fit</button>
-    </div>
-    <!-- Navigation cross for shirt mockup mode -->
-    <div class="nav-cross" id="navCross" style="display:none;">
-      <button data-dir="up" title="Nach oben">&#9650;</button>
-      <div class="nav-cross-mid">
-        <button data-dir="left" title="Nach links">&#9664;</button>
-        <button data-dir="fit" title="Einpassen" style="font-size:9px;">FIT</button>
-        <button data-dir="right" title="Nach rechts">&#9654;</button>
-      </div>
-      <button data-dir="down" title="Nach unten">&#9660;</button>
-      <div class="nav-cross-zoom">
-        <button data-dir="zout" title="Kleiner">−</button>
-        <button data-dir="zin" title="Größer">+</button>
-      </div>
     </div>
   </div>
 </div>
@@ -450,14 +421,10 @@
   // ─── State ───
   let sourceData=null, alphaData=null, srcW=0, srcH=0;
   let backupData=null, rafId=null, pngFileBuffer=null;
-  let currentView='halftone', shirtColorHex='#ffffff';
+  let currentView='halftone';
   let zoom=1, panX=0, panY=0;
   let isDragging=false, dragStartX=0, dragStartY=0, panStartX=0, panStartY=0;
   let isPicking=false;
-  // Mockup state
-  let mockupImg=null, mockupImgProcessed=null;
-  let mockupDesignX=0.5, mockupDesignY=0.45; // relative position (0-1) on mockup
-  let mockupDragging=false, mockupDragStartX=0, mockupDragStartY=0;
   let lastDotCount=0, lastCoverage=0;
 
   const renderCanvas=document.createElement('canvas');
@@ -468,8 +435,6 @@
   const oCtx=originalCanvas.getContext('2d');
   const alphaCanvas=document.getElementById('alphaCanvas');
   const aCtx=alphaCanvas.getContext('2d');
-  const shirtCanvas=document.getElementById('shirtCanvas');
-  const sCtx=shirtCanvas.getContext('2d');
   const dropZone=document.getElementById('dropZone');
   const fileInput=document.getElementById('fileInput');
   const canvasArea=document.getElementById('canvasArea');
@@ -479,37 +444,6 @@
   const getChecked=id=>document.getElementById(id).checked;
   const getActive=groupId=>{const b=document.querySelector(`#${groupId} button.active`);return b?b.dataset.value:'circle';};
 
-  // ─── Shirt color swatches ───
-  const SHIRT_COLORS=[
-    {name:'Weiß',hex:'#ffffff'},{name:'Natur',hex:'#f5f0e6'},{name:'Hellgrau',hex:'#c8c8c8'},
-    {name:'Grau',hex:'#808080'},{name:'Schwarz',hex:'#1a1a1a'},{name:'Navy',hex:'#1b2a4a'},
-    {name:'Rot',hex:'#c0392b'},{name:'Bordeaux',hex:'#7b2d3b'},{name:'Orange',hex:'#e67e22'},
-    {name:'Gelb',hex:'#f1c40f'},{name:'Grün',hex:'#27ae60'},{name:'Olive',hex:'#6b7c3e'},
-    {name:'Teal',hex:'#16a085'},{name:'Hellblau',hex:'#5dade2'},{name:'Khaki',hex:'#c2b280'},
-    {name:'Pink',hex:'#e84393'},{name:'Lila',hex:'#8e44ad'},{name:'Braun',hex:'#6b4226'},
-  ];
-  const swatchRow=document.getElementById('shirtSwatches');
-  SHIRT_COLORS.forEach((c,i)=>{
-    const el=document.createElement('div');
-    el.className='swatch'+(i===0?' active':'');
-    el.style.background=c.hex;
-    el.title=c.name;
-    el.dataset.color=c.hex;
-    if(c.hex==='#ffffff'||c.hex==='#f5f0e6') el.style.border='2px solid var(--border)';
-    el.addEventListener('click',()=>{
-      swatchRow.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
-      el.classList.add('active');
-      shirtColorHex=c.hex;
-      document.getElementById('shirtColor').value=c.hex;
-      if(currentView==='shirt') renderShirtPreview();
-    });
-    swatchRow.appendChild(el);
-  });
-  document.getElementById('shirtColor').addEventListener('input',function(){
-    shirtColorHex=this.value;
-    swatchRow.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
-    if(currentView==='shirt') renderShirtPreview();
-  });
 
   // ─── Button groups ───
   document.querySelectorAll('.btn-group').forEach(group=>{
@@ -699,126 +633,6 @@
     document.getElementById('pngInfoHint').style.display='none';
   }
 
-  // ─── Shirt Mockup Preview (EP01 Flat Front, embedded) ───
-  const MOCKUP_W=500, MOCKUP_H=500; // EP01 flat front is square
-
-  function loadMockupImage(cb){
-    if(mockupImgProcessed){ cb(); return; }
-    if(mockupImg){ return; } // loading in progress
-    mockupImg=new Image();
-    mockupImg.onload=function(){
-      // Image already has transparent background — no processing needed
-      mockupImgProcessed=mockupImg;
-      cb();
-    };
-    mockupImg.src=MOCKUP_DATA;
-  }
-  // EP01-WH flat front (500x500 WebP with alpha, ~9KB)
-  const MOCKUP_DATA='data:image/webp;base64,'+
-'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';
-
-  function renderShirtPreview(){
-    if(!sourceData) return;
-    loadMockupImage(()=>renderShirtMockup());
-  }
-
-  function renderShirtMockup(){
-    if(!sourceData || !mockupImgProcessed) return;
-    const mW=MOCKUP_W, mH=MOCKUP_H;
-    shirtCanvas.width=mW; shirtCanvas.height=mH;
-
-    const isDark=document.body.classList.contains('dark');
-
-    // 1) Neutraler Hintergrund (Umgebung, NICHT Shirtfarbe)
-    sCtx.fillStyle=isDark?'#111':'#e8e8e8';
-    sCtx.fillRect(0,0,mW,mH);
-
-    // 2) Shirt-Farbe auf das Foto legen:
-    //    - Erst das Foto zeichnen (mit entferntem weißem Hintergrund)
-    //    - Dann Shirtfarbe mit 'multiply' drüber → färbt helle Bereiche (Shirt),
-    //      dunkle Bereiche (Haut, Haare, Jeans) bleiben weitgehend unverändert
-    //    - Wir nutzen ein Offscreen-Canvas dafür
-
-    const off=document.createElement('canvas');
-    off.width=mW; off.height=mH;
-    const octx=off.getContext('2d');
-
-    // Foto zeichnen
-    octx.drawImage(mockupImgProcessed,0,0,mW,mH);
-
-    // Shirtfarbe mit multiply drüber → färbt das weiße/helle Shirt
-    octx.globalCompositeOperation='multiply';
-    octx.fillStyle=shirtColorHex;
-    octx.fillRect(0,0,mW,mH);
-    octx.globalCompositeOperation='source-over';
-
-    // Alpha vom Original-Foto wiederherstellen (multiply kann Alpha nicht ändern,
-    // aber wir stellen sicher dass der Hintergrund transparent bleibt)
-    octx.globalCompositeOperation='destination-in';
-    octx.drawImage(mockupImgProcessed,0,0,mW,mH);
-    octx.globalCompositeOperation='source-over';
-
-    // 3) Eingefärbtes Foto auf den Canvas
-    sCtx.drawImage(off,0,0);
-
-    // 4) Design auf dem Brustbereich mit Multiply-Blend
-    const scale=getNum('mockupScale')/100;
-    const designW=Math.round(mW*0.55*scale);
-    const designH=Math.round(designW*(srcH/srcW));
-    const designX=Math.round(mockupDesignX*mW - designW/2);
-    const designY=Math.round(mockupDesignY*mH - designH/2);
-
-    sCtx.save();
-    sCtx.globalCompositeOperation='multiply';
-    sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
-    sCtx.restore();
-
-    // Design nochmal leicht normal drüber für bessere Sichtbarkeit der Farben
-    sCtx.save();
-    sCtx.globalAlpha=0.2;
-    sCtx.drawImage(renderCanvas, designX, designY, designW, designH);
-    sCtx.restore();
-
-    // 5) Dashed Rahmen um Design-Position
-    sCtx.save();
-    sCtx.strokeStyle='rgba(255,255,255,0.35)';
-    sCtx.lineWidth=1;
-    sCtx.setLineDash([5,5]);
-    sCtx.strokeRect(designX, designY, designW, designH);
-    sCtx.restore();
-  }
-
-  // Mockup design drag
-  document.getElementById('mockupScale').addEventListener('input',function(){
-    document.getElementById('mockupScaleVal').textContent=this.value+'%';
-    if(currentView==='shirt') renderShirtPreview();
-  });
-
-  canvasArea.addEventListener('mousedown',function(e){
-    if(currentView!=='shirt' || !sourceData || e.button!==0) return;
-    // Check if in mockup drag mode
-    if(!isPicking){
-      mockupDragging=true;
-      mockupDragStartX=e.clientX;
-      mockupDragStartY=e.clientY;
-      e.stopPropagation(); // prevent pan
-    }
-  }, true); // capture phase to intercept before pan handler
-
-  window.addEventListener('mousemove',function(e){
-    if(!mockupDragging) return;
-    const r=canvasArea.getBoundingClientRect();
-    // Convert mouse position to mockup canvas coordinates
-    const mx=(e.clientX-r.left-panX)/zoom;
-    const my=(e.clientY-r.top-panY)/zoom;
-    mockupDesignX=Math.max(0.1, Math.min(0.9, mx/MOCKUP_W));
-    mockupDesignY=Math.max(0.1, Math.min(0.9, my/MOCKUP_H));
-    renderShirtMockup();
-  });
-
-  window.addEventListener('mouseup',function(){
-    mockupDragging=false;
-  });
 
   // ─── View Toggle ───
   function setView(v){
@@ -827,25 +641,18 @@
     viewCanvas.style.display    =(v==='halftone')?'block':'none';
     originalCanvas.style.display=(v==='original')?'block':'none';
     alphaCanvas.style.display   =(v==='alpha')?'block':'none';
-    shirtCanvas.style.display   =(v==='shirt')?'block':'none';
-    document.getElementById('alphaLegend').style.display=(v==='alpha')?'':'none';
-    document.getElementById('shirtControls').style.display=(v==='shirt')?'':'none';
-    // In shirt mode: nav cross instead of zoom bar + touchpad
-    document.getElementById('navCross').style.display=(v==='shirt'&&sourceData)?'flex':'none';
-    document.getElementById('zoomBar').style.display=(v!=='shirt'&&sourceData)?'flex':'none';
-    canvasArea.style.cursor=(v==='shirt')?'default':'grab';
-    if(v==='shirt') renderShirtPreview();
-    zoomToFit();
+        document.getElementById('alphaLegend').style.display=(v==='alpha')?'':'none';
+            document.getElementById('zoomBar').style.display=sourceData?'flex':'none';
+        zoomToFit();
   }
   document.getElementById('viewToggle').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!sourceData)return;setView(b.dataset.view);});
 
   // ─── Close ───
   document.getElementById('closeBtn').addEventListener('click',()=>{
     sourceData=null;alphaData=null;backupData=null;pngFileBuffer=null;srcW=0;srcH=0;
-    [viewCanvas,originalCanvas,alphaCanvas,shirtCanvas].forEach(c=>c.style.display='none');
+    [viewCanvas,originalCanvas,alphaCanvas].forEach(c=>c.style.display='none');
     document.getElementById('closeBtn').style.display='none';
     document.getElementById('zoomBar').style.display='none';
-    document.getElementById('navCross').style.display='none';
     document.getElementById('infoBar').style.display='none';
     document.getElementById('pngInfo').classList.remove('visible');
     document.getElementById('pngInfoHint').style.display='';
@@ -855,41 +662,25 @@
   // ─── Zoom & Pan ───
   function zoomToFit(){
     const r=canvasArea.getBoundingClientRect();
-    const cw=(currentView==='shirt')?MOCKUP_W:srcW;
-    const ch=(currentView==='shirt')?MOCKUP_H:srcH;
+    const cw=srcW;
+    const ch=srcH;
     zoom=Math.min((r.width-40)/cw,(r.height-40)/ch,1);
     panX=(r.width-cw*zoom)/2;panY=(r.height-ch*zoom)/2;
     updateViewTransform();
   }
   function updateViewTransform(){
     const t=`translate(${panX}px,${panY}px) scale(${zoom})`;
-    [viewCanvas,originalCanvas,alphaCanvas,shirtCanvas].forEach(c=>c.style.transform=t);
+    [viewCanvas,originalCanvas,alphaCanvas].forEach(c=>c.style.transform=t);
     document.getElementById('zoomLevel').textContent=Math.round(zoom*100)+'%';
   }
 
-  canvasArea.addEventListener('wheel',e=>{if(!sourceData||currentView==='shirt')return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
-  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}if(mockupDragging||currentView==='shirt')return;isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
+  canvasArea.addEventListener('wheel',e=>{if(!sourceData)return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
+  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
   window.addEventListener('mousemove',e=>{if(!isDragging)return;panX=panStartX+(e.clientX-dragStartX);panY=panStartY+(e.clientY-dragStartY);updateViewTransform();});
   window.addEventListener('mouseup',()=>{isDragging=false;canvasArea.classList.remove('dragging');});
   document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(20,zoom*1.3);updateViewTransform();});
   document.getElementById('zoomOut').addEventListener('click',()=>{zoom=Math.max(0.05,zoom/1.3);updateViewTransform();});
   document.getElementById('zoomFit').addEventListener('click',zoomToFit);
-
-  // ─── Nav Cross (shirt mode navigation) ───
-  const navCross=document.getElementById('navCross');
-  const NAV_STEP=40;
-  navCross.addEventListener('click',e=>{
-    const btn=e.target.closest('button');if(!btn)return;
-    const dir=btn.dataset.dir;
-    if(dir==='up')   panY+=NAV_STEP;
-    if(dir==='down') panY-=NAV_STEP;
-    if(dir==='left') panX+=NAV_STEP;
-    if(dir==='right')panX-=NAV_STEP;
-    if(dir==='zin')  zoom=Math.min(20,zoom*1.25);
-    if(dir==='zout') zoom=Math.max(0.05,zoom/1.25);
-    if(dir==='fit')  { zoomToFit(); return; }
-    updateViewTransform();
-  });
 
   // ─── Background Removal ───
   document.getElementById('bgRemoveWhite').addEventListener('click',()=>removeBgColor(255,255,255));
@@ -939,7 +730,7 @@
       rCtx.putImageData(imgData,0,0);applyEffects();
       document.getElementById('infoDots').textContent='no halftone';
       viewCanvas.width=srcW;viewCanvas.height=srcH;vCtx.clearRect(0,0,srcW,srcH);vCtx.drawImage(renderCanvas,0,0);
-      updateCoverage();if(currentView==='shirt')renderShirtPreview();return;
+      updateCoverage();return;
     }
 
     rCtx.fillStyle=fgColor;
@@ -1011,8 +802,7 @@
     document.getElementById('infoDots').textContent=lastDotCount.toLocaleString()+' dots';
     viewCanvas.width=srcW;viewCanvas.height=srcH;vCtx.clearRect(0,0,srcW,srcH);vCtx.drawImage(renderCanvas,0,0);
     updateCoverage();
-    if(currentView==='shirt') renderShirtPreview();
-  }
+    }
 
   // ─── Ink Coverage ───
   function updateCoverage(){
@@ -1060,28 +850,37 @@
     let changed=false;
 
     // Grain: zufällige per-Pixel Alpha-Reduktion (körnige Erosion)
+    // Size: kleine Size = feines Korn (jeder Pixel), große Size = Cluster-Korn
     if(getChecked('fx_grain')){
       const int=getNum('fx_grain_int')/100;
+      const sz=getNum('fx_grain_size')/100;
       const rng=mulberry32(noiseSeed);
-      for(let i=0;i<d.length;i+=4){
-        if(d[i+3]===0) continue;
+      const blockSize=Math.max(1, Math.round(1+sz*8)); // 1-9px blocks
+      for(let by=0;by<h;by+=blockSize) for(let bx=0;bx<w;bx+=blockSize){
         const erode=rng()*int;
-        d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+        for(let dy=0;dy<blockSize&&by+dy<h;dy++) for(let dx=0;dx<blockSize&&bx+dx<w;dx++){
+          const i=((by+dy)*w+(bx+dx))*4;
+          if(d[i+3]===0) continue;
+          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
+        }
       }
       changed=true;
     }
 
     // Dirt: organische Perlin-Noise-Flecken löschen Alpha
+    // Size: kleine Size = feinere Schmutzflecken, große Size = breite Flecken
     if(getChecked('fx_dirt')){
       const int=getNum('fx_dirt_int')/100;
+      const sz=getNum('fx_dirt_size')/100;
+      const scale1=0.001+sz*0.012; // 0.001-0.013 (größere sz = größere Flecken)
+      const scale2=scale1*0.25;
       for(let y=0;y<h;y++) for(let x=0;x<w;x++){
         const i=(y*w+x)*4;
         if(d[i+3]===0) continue;
-        let n=Perlin.fbm(x*0.004,y*0.004,6,0.5,2.0);
+        let n=Perlin.fbm(x*scale1,y*scale1,6,0.5,2.0);
         n=(n+1)/2;
-        const n2=Perlin.fbm(x*0.001+100,y*0.001+100,3,0.7,2.0);
+        const n2=Perlin.fbm(x*scale2+100,y*scale2+100,3,0.7,2.0);
         n=n*0.7+((n2+1)/2)*0.3;
-        // Dunkle Noise-Bereiche = stärkere Erosion
         const erode=Math.max(0,(1-n)*int*1.5);
         if(erode>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
       }
@@ -1089,26 +888,29 @@
     }
 
     // Scratches: Kratzerlinien als Alpha-Radierer
+    // Size: kleine Size = kurze dünne Kratzer, große Size = lange breite Kratzer
     if(getChecked('fx_scratches')){
       const int=getNum('fx_scratches_int')/100;
+      const sz=getNum('fx_scratches_size')/100;
       const rng=mulberry32(noiseSeed+1);
       const num=Math.floor(20+int*80);
-      // Kratzer auf Offscreen-Canvas zeichnen, dann als Maske nutzen
       const off=document.createElement('canvas');
       off.width=w; off.height=h;
       const oc=off.getContext('2d');
       oc.fillStyle='black'; oc.fillRect(0,0,w,h);
       oc.strokeStyle='white'; oc.lineCap='round';
+      const maxLen=Math.min(w,h);
       for(let s=0;s<num;s++){
-        oc.lineWidth=0.5+rng()*2.5;
+        oc.lineWidth=(0.5+rng()*2.5)*(0.3+sz*2); // thicker with size
         oc.globalAlpha=0.3+rng()*0.7;
         oc.beginPath();
         const sx=rng()*w, sy=rng()*h;
-        const len=30+rng()*Math.min(w,h)*0.4, a=rng()*Math.PI;
+        const len=(10+rng()*maxLen*0.15)*(0.3+sz*2); // longer with size
+        const a=rng()*Math.PI;
         oc.moveTo(sx,sy);
         oc.quadraticCurveTo(
-          sx+len*0.5*Math.cos(a)+(rng()-0.5)*20,
-          sy+len*0.5*Math.sin(a)+(rng()-0.5)*20,
+          sx+len*0.5*Math.cos(a)+(rng()-0.5)*20*sz,
+          sy+len*0.5*Math.sin(a)+(rng()-0.5)*20*sz,
           sx+len*Math.cos(a), sy+len*Math.sin(a)
         );
         oc.stroke();
@@ -1117,7 +919,7 @@
       const mask=oc.getImageData(0,0,w,h).data;
       for(let i=0;i<d.length;i+=4){
         if(d[i+3]===0) continue;
-        const bright=mask[i]/255; // 0=schwarz(kein Kratzer), 1=weiß(Kratzer)
+        const bright=mask[i]/255;
         if(bright>0.05){
           const erode=bright*int;
           d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
@@ -1127,14 +929,15 @@
     }
 
     // Dust: kleine Partikel-Löcher im Alpha
+    // Size: kleine Size = Feinstaub, große Size = grobe Partikel
     if(getChecked('fx_dust')){
       const int=getNum('fx_dust_int')/100;
+      const sz=getNum('fx_dust_size')/100;
       const rng=mulberry32(noiseSeed+2);
       const num=Math.floor(100+int*600);
-      // Partikel-Positionen sammeln, dann im Pixelbuffer löschen
       for(let p=0;p<num;p++){
         const cx=rng()*w, cy=rng()*h;
-        const r=0.5+rng()*2.5;
+        const r=(0.5+rng()*2.5)*(0.3+sz*2.5); // 0.15-7px radius
         const strength=0.4+rng()*0.6;
         const r2=r*r;
         const x0=Math.max(0,Math.floor(cx-r)), x1=Math.min(w-1,Math.ceil(cx+r));
@@ -1151,13 +954,15 @@
     }
 
     // Splatter: große abgeplatzte Bereiche + Tropfen (wie abblätternde Farbe)
+    // Size: kleine Size = kleine Flecken, große Size = große Abplatzungen
     if(getChecked('fx_splatter')){
       const int=getNum('fx_splatter_int')/100;
+      const sz=getNum('fx_splatter_size')/100;
       const rng=mulberry32(noiseSeed+3);
       const numBlobs=Math.floor(5+int*25);
       for(let s=0;s<numBlobs;s++){
         const cx=rng()*w, cy=rng()*h;
-        const mr=5+rng()*20*int;
+        const mr=(3+rng()*15*int)*(0.3+sz*3); // scale blob radius with size
         const strength=0.5+rng()*0.5;
         const mr2=mr*mr;
         const x0=Math.max(0,Math.floor(cx-mr)), x1=Math.min(w-1,Math.ceil(cx+mr));
@@ -1176,7 +981,7 @@
         for(let dd=0;dd<numDrops;dd++){
           const da=rng()*Math.PI*2, dist=mr+rng()*mr*3;
           const dx2=cx+Math.cos(da)*dist, dy2=cy+Math.sin(da)*dist;
-          const dr=1+rng()*4;
+          const dr=(1+rng()*4)*(0.3+sz*1.5);
           const dr2=dr*dr;
           const bx0=Math.max(0,Math.floor(dx2-dr)), bx1=Math.min(w-1,Math.ceil(dx2+dr));
           const by0=Math.max(0,Math.floor(dy2-dr)), by1=Math.min(h-1,Math.ceil(dy2+dr));
@@ -1193,13 +998,16 @@
     }
 
     // Worn: großflächige Perlin-Noise-Erosion
+    // Size: kleine Size = feine Abnutzung, große Size = breite abgenutzte Flächen
     if(getChecked('fx_worn')){
       const int=getNum('fx_worn_int')/100;
+      const sz=getNum('fx_worn_size')/100;
       const rng=mulberry32(noiseSeed+4);
+      const wornScale=0.002+sz*0.02; // 0.002-0.022
       for(let y=0;y<h;y++) for(let x=0;x<w;x++){
         const i=(y*w+x)*4;
         if(d[i+3]===0) continue;
-        let n=Perlin.fbm(x*0.008+500,y*0.008+500,4,0.5,2.5);
+        let n=Perlin.fbm(x*wornScale+500,y*wornScale+500,4,0.5,2.5);
         n=(n+1)/2;
         // Noise-Varianz hinzufügen
         n=Math.max(0,Math.min(1, n+(rng()-0.5)*0.15));
@@ -1214,11 +1022,13 @@
     }
 
     // Vignette: radiale Alpha-Verblassung vom Rand
+    // Size: kleine Size = enges Loch in der Mitte, große Size = breiter offener Bereich
     if(getChecked('fx_vignette')){
       const int=getNum('fx_vignette_int')/100;
+      const sz=getNum('fx_vignette_size')/100;
       const cx=w/2, cy=h/2;
-      const maxR=Math.max(w,h)*0.7;
-      const innerR=Math.min(w,h)*0.2;
+      const maxR=Math.max(w,h)*(0.3+sz*0.6); // 0.3-0.9 of max dimension
+      const innerR=Math.min(w,h)*(0.05+sz*0.4); // 0.05-0.45 of min dimension
       for(let y=0;y<h;y++) for(let x=0;x<w;x++){
         const i=(y*w+x)*4;
         if(d[i+3]===0) continue;
