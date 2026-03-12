@@ -95,7 +95,7 @@
 
   /* Tooltips */
   .tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); font-size: 9px; color: var(--text-dim); cursor: help; font-weight: 700; flex-shrink: 0; margin-left: 4px; }
-  .tip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; right: 0; background: var(--text); color: var(--bg); padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 400; line-height: 1.4; white-space: normal; width: 220px; z-index: 1000; pointer-events: none; margin-bottom: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  #tipBox { position: fixed; z-index: 9999; background: var(--text); color: var(--bg); padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 400; line-height: 1.4; white-space: normal; width: 220px; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; }
 
   /* Warning banner */
   .dtf-warning { background: rgba(244,68,68,0.1); border: 1px solid rgba(244,68,68,0.3); border-radius: 6px; padding: 6px 8px; font-size: 10px; color: #f88; line-height: 1.4; display: none; }
@@ -141,6 +141,7 @@
 </style>
 </head>
 <body>
+<div id="tipBox"></div>
 
 <div class="consent-overlay hidden" id="consentOverlay">
   <div class="consent-box">
@@ -417,6 +418,26 @@
     }
     return null;
   }
+
+  // ─── Tooltips (viewport-aware) ───
+  const tipBox=document.getElementById('tipBox');
+  document.addEventListener('mouseenter',e=>{
+    const t=e.target.closest('.tip');if(!t)return;
+    tipBox.textContent=t.dataset.tip;
+    tipBox.style.display='block';
+    const r=t.getBoundingClientRect();
+    let x=r.left, y=r.top-tipBox.offsetHeight-6;
+    // Zu weit rechts? Links vom ? anzeigen
+    if(x+220>window.innerWidth) x=r.right-220;
+    // Zu weit oben? Unter dem ? anzeigen
+    if(y<4) y=r.bottom+6;
+    // Noch rechts clamp
+    x=Math.max(4, Math.min(x, window.innerWidth-224));
+    tipBox.style.left=x+'px'; tipBox.style.top=y+'px';
+  },true);
+  document.addEventListener('mouseleave',e=>{
+    if(e.target.closest('.tip')) tipBox.style.display='none';
+  },true);
 
   // ─── State ───
   let sourceData=null, alphaData=null, srcW=0, srcH=0;
