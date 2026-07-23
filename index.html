@@ -69,6 +69,19 @@
   .mode-card .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
   .mode-card.active .dot { border-color: var(--accent); background: var(--accent); }
 
+  /* File info stat cards */
+  .png-info { display: none; }
+  .png-info.visible { display: flex; flex-direction: column; gap: 6px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
+  .stat-card .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 2px; }
+  .stat-card .stat-main { font-size: 12px; font-weight: 600; }
+  .stat-card .stat-sub { font-size: 9px; color: var(--text-dim); margin-top: 1px; }
+  .dpi-ok { color: var(--accent2); } .dpi-warn { color: var(--gold); } .dpi-bad { color: #f44; }
+  .alpha-legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 9px; color: var(--text-dim); padding: 6px 0 0; }
+  .alpha-legend span { display: flex; align-items: center; gap: 3px; }
+  .alpha-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
+
   body.light-mode { --bg: #f5f5f5; --surface: #ffffff; --surface2: #f0f0f0; --border: #e0e0e0; --text: #1a1a1a; --text-dim: #666; }
 
   @media (max-width: 760px) {
@@ -165,15 +178,34 @@
       <div class="hint" id="levelsHint" style="margin-top:6px;">💡 Kannst du helle Bereiche nicht trennen? Ziehe <b>Mitten (Gamma)</b> hoch und <b>Weißpunkt</b> runter.</div>
     </div>
 
-    <!-- EDGES -->
-    <div>
-      <div class="section-title">Kanten <span class="tip" data-tip="Anti-Aliasing erzeugt halbtransparente Randpixel → weiße Ränder beim DTF-Druck. 'Hartes Alpha' macht jedes Pixel voll deckend oder voll transparent (Threshold), sauber für DTF.">?</span></div>
+    <!-- EDGE PROTECTION -->
+    <div id="edgeSection">
+      <div class="section-title">Kantenschutz <span class="tip" data-tip="Verhindert, dass der dünne Anti-Alias-Saum an sauberen Motivkanten durchlöchert wird. Nur der Saum wird geschützt — breite Glows/Schatten bleiben gerastert. Nur einschalten, wenn Kanten Probleme machen.">?</span></div>
       <div class="control-group">
-        <label style="cursor:pointer;"><span><input type="checkbox" id="hardAlpha" style="accent-color:var(--accent); margin-right:6px;">Hartes Alpha (Ränder schärfen)</span></label>
+        <label style="cursor:pointer;"><span><input type="checkbox" id="edgeProtect" style="accent-color:var(--accent); margin-right:6px;"><b>Kantenschutz aktivieren</b></span></label>
+        <div id="edgeControls" style="display:none; margin-top:2px;">
+          <label>Vollton-Schwelle <span class="value" id="solidThrVal">90%</span> <span class="tip" data-tip="Ab dieser Deckkraft gilt ein Pixel als voll deckend (bleibt kristallklar, wird nie gerastert).">?</span></label>
+          <input type="range" id="solidThr" min="50" max="99" value="90" step="1">
+
+          <label style="margin-top:4px;">Saum-Schutz <span class="value" id="protectPxVal">2px</span> <span class="tip" data-tip="Halbtransparente Pixel, die näher als dieser Abstand an einem Vollton-Pixel liegen, werden hart gesnappt (saubere Kante). Option 2: Proximity.">?</span></label>
+          <input type="range" id="protectPx" min="0" max="6" value="2" step="1">
+
+          <label style="margin-top:4px;">Min. Rasterbreite <span class="value" id="minWidthVal">8px</span> <span class="tip" data-tip="Nur halbtransparente Bänder, die breiter als dieser Wert sind, werden gerastert. Dünnere Säume werden gesnappt. Option 4: Breiten-Filter. Richtwert ≈ eine Rasterzelle.">?</span></label>
+          <input type="range" id="minWidth" min="0" max="24" value="8" step="1">
+          <div class="hint">Saum wird zu <b>Vollton</b> (≥50% Deckkraft) oder <b>transparent</b> gesnappt. Breite Glows/Schatten bleiben Punkte.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HARD ALPHA -->
+    <div>
+      <div class="section-title">Ränder <span class="tip" data-tip="Anti-Aliasing erzeugt halbtransparente Randpixel → weiße Ränder beim DTF-Druck. 'Hartes Alpha' macht global jedes Pixel voll deckend oder voll transparent.">?</span></div>
+      <div class="control-group">
+        <label style="cursor:pointer;"><span><input type="checkbox" id="hardAlpha" style="accent-color:var(--accent); margin-right:6px;">Hartes Alpha (global schärfen)</span></label>
         <div id="hardAlphaRow" style="display:none;">
           <label>Schwelle <span class="value" id="thresholdVal">50%</span></label>
           <input type="range" id="threshold" min="1" max="99" value="50" step="1">
-          <div class="hint">Pixel über der Schwelle → voll deckend, darunter → transparent. Standard 50%.</div>
+          <div class="hint">Ganzes Bild: Pixel über der Schwelle → voll deckend, darunter → transparent.</div>
         </div>
       </div>
     </div>
@@ -186,6 +218,25 @@
         <button data-view="alpha">Transparenz</button>
         <button data-view="original">Original</button>
       </div>
+      <div class="alpha-legend" id="alphaLegend" style="display:none;">
+        <span><span class="dot" style="background:#ff3cd2"></span> Transparent</span>
+        <span><span class="dot" style="background:#e0ff00"></span> Halbtransparent</span>
+        <span><span class="dot" style="background:#232323"></span> Opak</span>
+      </div>
+    </div>
+
+    <!-- FILE INFO -->
+    <div>
+      <div class="section-title">Datei-Info</div>
+      <div class="png-info" id="pngInfo">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Auflösung</div><div class="stat-main" id="statRes">–</div><div class="stat-sub" id="statFileSize">–</div></div>
+          <div class="stat-card"><div class="stat-label">DPI</div><div class="stat-main" id="statDpi">–</div><div class="stat-sub" id="statDpiSub">–</div></div>
+          <div class="stat-card"><div class="stat-label">Größe (cm)</div><div class="stat-main" id="statCm">–</div><div class="stat-sub" id="statCmSub">–</div></div>
+          <div class="stat-card"><div class="stat-label">Transparenz</div><div class="stat-main" id="statAlpha">–</div><div class="stat-sub" id="statAlphaSub">–</div></div>
+        </div>
+      </div>
+      <div class="hint" id="pngInfoHint">Bild laden um Infos zu sehen</div>
     </div>
 
     <!-- EXPORT -->
@@ -249,6 +300,30 @@
   const getNum = id => parseFloat($(id).value);
   const getChecked = id => $(id).checked;
 
+  // edge-decision cache (avoid recompute when only screen params change)
+  let edgeMap = null, edgeKey = '';
+
+  // ─── pHYs DPI Parser (from V1) ───
+  function parsePngDpi(buffer) {
+    const bytes = new Uint8Array(buffer);
+    const sig = [137,80,78,71,13,10,26,10];
+    for (let i=0;i<8;i++){ if(bytes[i]!==sig[i]) return null; }
+    let off=8;
+    while (off < bytes.length-12) {
+      const len=(bytes[off]<<24)|(bytes[off+1]<<16)|(bytes[off+2]<<8)|bytes[off+3];
+      const type=String.fromCharCode(bytes[off+4],bytes[off+5],bytes[off+6],bytes[off+7]);
+      if (type==='pHYs') {
+        const ppuX=((bytes[off+8]<<24)>>>0)|(bytes[off+9]<<16)|(bytes[off+10]<<8)|bytes[off+11];
+        const unit=bytes[off+16];
+        if (unit===1) return { dpi: Math.round(ppuX*0.0254), known: true };
+        return { dpi: ppuX, known: false };
+      }
+      if (type==='IEND') break;
+      off += 12+len;
+    }
+    return null;
+  }
+
   // ─── Tooltips ───
   const tipBox = $('tipBox');
   document.addEventListener('mouseenter', e => {
@@ -272,9 +347,22 @@
   canvasArea.addEventListener('drop', e => { if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]); });
 
   function loadImage(file) {
+    // read raw bytes for pHYs DPI, then decode as image
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const buffer = ev.target.result;
+      const dpiInfo = (file.type === 'image/png') ? parsePngDpi(buffer) : null;
+      const blob = new Blob([buffer], { type: file.type });
+      decodeAndLoad(blob, file, dpiInfo);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function decodeAndLoad(blob, file, dpiInfo) {
     const img = new Image();
     img.onload = () => {
       srcW = img.width; srcH = img.height; sourceImg = img;
+      edgeMap = null; edgeKey = '';
       const tmp = document.createElement('canvas'); tmp.width = srcW; tmp.height = srcH;
       const tc = tmp.getContext('2d'); tc.drawImage(img, 0, 0);
       srcRGBA = tc.getImageData(0, 0, srcW, srcH).data;
@@ -285,6 +373,7 @@
       let semi = 0, transp = 0;
       for (let i = 3; i < srcRGBA.length; i += 4) { const a = srcRGBA[i]; if (a === 0) transp++; else if (a < 255) semi++; }
       const total = srcW * srcH;
+      updateFileInfo(file, dpiInfo, semi, transp, total);
 
       dropZone.classList.add('hidden');
       $('closeBtn').style.display = 'block';
@@ -296,7 +385,28 @@
       zoomToFit();
       render();
     };
-    img.src = URL.createObjectURL(file);
+    img.src = URL.createObjectURL(blob);
+  }
+
+  // ─── File Info panel ───
+  function updateFileInfo(file, dpiInfo, semi, transp, total) {
+    const dpi = dpiInfo && dpiInfo.known ? dpiInfo.dpi : null;
+    $('statRes').textContent = `${srcW} × ${srcH} px`;
+    $('statFileSize').textContent = `${(file.size/1024).toFixed(0)} KB` + (file.size>1048576 ? ` (${(file.size/1048576).toFixed(1)} MB)` : '');
+    const dpiEl = $('statDpi');
+    if (dpi) {
+      const cls = dpi>=300 ? 'dpi-ok' : dpi>=150 ? 'dpi-warn' : 'dpi-bad';
+      dpiEl.innerHTML = `<span class="${cls}">${dpi} dpi</span>`;
+      $('statDpiSub').textContent = dpi>=300 ? 'DTF-ready' : dpi>=150 ? 'Akzeptabel' : 'Zu niedrig';
+    } else { dpiEl.innerHTML = '<span class="dpi-warn">Unbekannt</span>'; $('statDpiSub').textContent = 'Kein pHYs-Chunk'; }
+    const wCm = dpi ? (srcW/dpi)*2.54 : null, hCm = dpi ? (srcH/dpi)*2.54 : null;
+    $('statCm').textContent = wCm ? `${wCm.toFixed(1)} × ${hCm.toFixed(1)}` : '–';
+    $('statCmSub').textContent = wCm ? `bei ${dpi} dpi` : 'Benötigt DPI';
+    const tPct = (transp/total*100).toFixed(1), sPct = (semi/total*100).toFixed(1);
+    $('statAlpha').textContent = `${tPct}% transp.`;
+    $('statAlphaSub').textContent = parseFloat(sPct)>0 ? `+ ${sPct}% halbtransp.` : `${(100-parseFloat(tPct)).toFixed(1)}% opak`;
+    $('pngInfo').classList.add('visible');
+    $('pngInfoHint').style.display = 'none';
   }
 
   $('closeBtn').addEventListener('click', () => {
@@ -359,13 +469,20 @@
   $('gamma').addEventListener('input', function() { $('gammaVal').textContent = parseFloat(this.value).toFixed(2); render(); });
   $('blackPt').addEventListener('input', function() { $('blackPtVal').textContent = this.value + '%'; render(); });
 
-  $('hardAlpha').addEventListener('change', function() { $('hardAlphaRow').style.display = this.checked ? 'block' : 'none'; render(); });
-  $('threshold').addEventListener('input', function() { $('thresholdVal').textContent = this.value + '%'; render(); });
+  $('hardAlpha').addEventListener('change', function() { $('hardAlphaRow').style.display = this.checked ? 'block' : 'none'; edgeMap = null; render(); });
+  $('threshold').addEventListener('input', function() { $('thresholdVal').textContent = this.value + '%'; edgeMap = null; render(); });
+
+  // Edge protection controls (invalidate edgeMap cache on change)
+  $('edgeProtect').addEventListener('change', function() { $('edgeControls').style.display = this.checked ? 'block' : 'none'; edgeMap = null; render(); });
+  $('solidThr').addEventListener('input', function() { $('solidThrVal').textContent = this.value + '%'; edgeMap = null; render(); });
+  $('protectPx').addEventListener('input', function() { $('protectPxVal').textContent = this.value + 'px'; edgeMap = null; render(); });
+  $('minWidth').addEventListener('input', function() { $('minWidthVal').textContent = this.value + 'px'; edgeMap = null; render(); });
 
   document.querySelectorAll('#viewMode button').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('#viewMode button').forEach(b => b.classList.remove('active'));
       this.classList.add('active'); currentView = this.dataset.view;
+      $('alphaLegend').style.display = (currentView === 'alpha') ? 'flex' : 'none';
       updateShirtPreview(); render();
     });
   });
@@ -397,6 +514,59 @@
     return [parseInt(shirtColor.slice(1,3),16), parseInt(shirtColor.slice(3,5),16), parseInt(shirtColor.slice(5,7),16)];
   }
 
+  // ─── Chamfer distance transform (distance from seed pixels) ───
+  function chamferDT(seed, W, H) {
+    const INF = 1e9, a = 1, b = 1.41421356;
+    const d = new Float32Array(W * H);
+    for (let i = 0; i < d.length; i++) d[i] = seed[i] ? 0 : INF;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y*W + x; let v = d[i];
+      if (x>0) v = Math.min(v, d[i-1]+a);
+      if (y>0) v = Math.min(v, d[i-W]+a);
+      if (x>0 && y>0) v = Math.min(v, d[i-W-1]+b);
+      if (x<W-1 && y>0) v = Math.min(v, d[i-W+1]+b);
+      d[i] = v;
+    }
+    for (let y = H-1; y >= 0; y--) for (let x = W-1; x >= 0; x--) {
+      const i = y*W + x; let v = d[i];
+      if (x<W-1) v = Math.min(v, d[i+1]+a);
+      if (y<H-1) v = Math.min(v, d[i+W]+a);
+      if (x<W-1 && y<H-1) v = Math.min(v, d[i+W+1]+b);
+      if (x>0 && y<H-1) v = Math.min(v, d[i+W-1]+b);
+      d[i] = v;
+    }
+    return d;
+  }
+
+  // ─── Edge-decision map: 0=halftone normally, 1=force solid, 2=force transparent ───
+  // Combines Option 2 (Saum-Schutz/proximity) + Option 4 (Breiten-Filter/width).
+  function buildEdgeMap() {
+    const solidThr = getNum('solidThr') / 100 * 255;
+    const protectPx = getNum('protectPx');
+    const minWidth = getNum('minWidth');
+    const N = srcW * srcH, s = srcRGBA;
+    const isSolid = new Uint8Array(N), isTransp = new Uint8Array(N);
+    for (let i = 0; i < N; i++) { const a = s[i*4+3]; if (a >= solidThr) isSolid[i] = 1; else if (a <= 2) isTransp[i] = 1; }
+    const dSolid = chamferDT(isSolid, srcW, srcH);
+    const dTransp = chamferDT(isTransp, srcW, srcH);
+    const map = new Uint8Array(N);
+    for (let i = 0; i < N; i++) {
+      const a = s[i*4+3];
+      if (a >= solidThr || a <= 2) continue;            // non-semi → normal
+      // proximity to solid OR thin band (distSolid+distTransp ≈ band width) → snap
+      if (dSolid[i] <= protectPx || (dSolid[i] + dTransp[i]) <= minWidth) {
+        map[i] = (a >= 128) ? 1 : 2;
+      }                                                  // else broad soft area → halftone
+    }
+    return map;
+  }
+
+  function getEdgeMap() {
+    const key = `${getNum('solidThr')}|${getNum('protectPx')}|${getNum('minWidth')}`;
+    if (!edgeMap || edgeKey !== key) { edgeMap = buildEdgeMap(); edgeKey = key; }
+    return edgeMap;
+  }
+
   // ─── Scheduling ───
   function scheduleRender() { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(render); }
   window.render = render;
@@ -409,6 +579,20 @@
     if (currentView === 'original') {
       const id = oCtx.createImageData(srcW, srcH);
       id.data.set(srcRGBA);
+      oCtx.putImageData(id, 0, 0);
+      vCtx.clearRect(0, 0, srcW, srcH); vCtx.drawImage(outCanvas, 0, 0);
+      updateViewTransform(); return;
+    }
+
+    // Alpha view: color-coded transparency map (from V1) — pink=transparent, yellow=semi, dark=opaque
+    if (currentView === 'alpha') {
+      const id = oCtx.createImageData(srcW, srcH); const d = id.data; const s2 = srcRGBA;
+      for (let i = 0; i < srcW*srcH; i++) {
+        const a = s2[i*4+3], px = i % srcW, py = (i / srcW) | 0, si = i*4;
+        if (a === 0) { const ck = ((((px/10)|0) + ((py/10)|0)) % 2 === 0); d[si]=ck?255:180; d[si+1]=ck?60:40; d[si+2]=ck?210:150; d[si+3]=255; }
+        else if (a < 255) { d[si]=224; d[si+1]=255; d[si+2]=0; d[si+3]=255; }
+        else { d[si]=35; d[si+1]=35; d[si+2]=35; d[si+3]=255; }
+      }
       oCtx.putImageData(id, 0, 0);
       vCtx.clearRect(0, 0, srcW, srcH); vCtx.drawImage(outCanvas, 0, 0);
       updateViewTransform(); return;
@@ -428,6 +612,10 @@
     const shirtLum = (0.299*sr + 0.587*sg + 0.114*sb) / 255;
     const shirtLumNorm = Math.max(shirtLum, 1 - shirtLum) || 1;
 
+    // edge protection (only in transparency mode, when enabled and not overridden by hard alpha)
+    const edgeActive = mode === 'transparency' && getChecked('edgeProtect') && !hardAlpha;
+    const eMap = edgeActive ? getEdgeMap() : null;
+
     const out = oCtx.createImageData(srcW, srcH);
     const o = out.data;
     const s = srcRGBA;
@@ -445,6 +633,13 @@
 
         // hard alpha (threshold) first
         if (hardAlpha) a = a >= thr ? 255 : 0;
+
+        // edge protection: snap thin anti-alias fringe (keeps clean motif edges)
+        if (eMap) {
+          const dec = eMap[y * srcW + x];
+          if (dec === 2) { o[idx+3] = 0; continue; }            // → transparent
+          if (dec === 1) { o[idx] = s[idx]; o[idx+1] = s[idx+1]; o[idx+2] = s[idx+2]; o[idx+3] = 255; continue; } // → solid
+        }
 
         if (a === 0) { o[idx+3] = 0; continue; }
 
