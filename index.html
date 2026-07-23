@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>exe Halftone Tool — exe.network</title>
+<title>exe Halftone Tool — DTF</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,1092 +14,553 @@
   }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
   header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.5px; }
+  header h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; }
   .badge { font-size: 10px; color: var(--text-dim); background: var(--surface2); padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border); }
   .layout { display: flex; height: calc(100vh - 49px); }
 
-  .sidebar { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 10; }
+  .sidebar { width: 310px; min-width: 310px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 18px; }
   .sidebar::-webkit-scrollbar { width: 4px; } .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 8px; }
-  .control-group { display: flex; flex-direction: column; gap: 6px; }
+  .section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 9px; display: flex; align-items: center; }
+  .control-group { display: flex; flex-direction: column; gap: 8px; }
   label { font-size: 12px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
   label .value { font-size: 11px; color: var(--accent); font-variant-numeric: tabular-nums; }
   input[type="range"] { -webkit-appearance: none; width: 100%; height: 3px; background: var(--border); border-radius: 2px; outline: none; }
   input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); }
-  select { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px; font-family: inherit; cursor: pointer; outline: none; width: 100%; }
-  select:focus { border-color: var(--accent); }
-  .btn-group { display: flex; gap: 3px; flex-wrap: wrap; }
-  .btn-group button { flex: 1; min-width: 50px; padding: 6px 4px; font-size: 11px; font-weight: 600; font-family: inherit; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
+  .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .btn-group button { flex: 1; min-width: 48px; padding: 7px 4px; font-size: 11px; font-weight: 600; font-family: inherit; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
   .btn-group button:hover { border-color: var(--accent); color: var(--text); }
   .btn-group button.active { background: var(--accent); color: #000; border-color: var(--accent); }
-  .checkbox-row { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
-  .checkbox-row input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
-  .color-row { display: flex; gap: 6px; align-items: center; }
-  .color-row input[type="color"] { width: 32px; height: 24px; border: 1px solid var(--border); border-radius: 3px; background: transparent; cursor: pointer; padding: 1px; }
-  .color-row span { font-size: 12px; flex: 1; }
-  .effect-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
-  .effect-row label { flex: 1; min-width: 0; }
-  .effect-row .fx-slider { width: 70px; min-width: 70px; }
-  .action-btn { width: 100%; padding: 8px; font-size: 11px; font-weight: 600; font-family: inherit; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
-  .action-btn:hover { border-color: var(--gold); color: var(--gold); }
-  .action-btn.danger:hover { border-color: #f44; color: #f44; }
+  .color-row { display: flex; gap: 8px; align-items: center; }
+  input[type="color"] { width: 36px; height: 26px; border: 1px solid var(--border); border-radius: 4px; background: transparent; cursor: pointer; padding: 1px; }
+  .hint { font-size: 10px; color: var(--text-dim); line-height: 1.45; margin-top: 2px; }
   .export-buttons { display: flex; gap: 6px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
-  .export-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
+  .export-btn { flex: 1; padding: 11px; font-size: 12px; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
   .export-btn.png { background: var(--accent); color: #000; }
   .export-btn.svg { background: var(--accent2); color: #000; }
   .export-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
-  .canvas-area { flex: 1; position: relative; overflow: hidden; cursor: grab; background: var(--bg); }
+  .canvas-area { flex: 1; position: relative; overflow: hidden; cursor: grab; background: #808080; }
   .canvas-area.dragging { cursor: grabbing; }
-  .canvas-area.picking { cursor: crosshair; }
-  .checkerboard { position: absolute; inset: 0; background-size: 20px 20px; z-index: 0; pointer-events: none; }
-  #viewCanvas, #originalCanvas, #alphaCanvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; }
-  .drop-zone { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 10; cursor: pointer; }
+  .checkerboard { position: absolute; inset: 0; background-size: 24px 24px; background-image: repeating-conic-gradient(#666 0% 25%, #808080 0% 50%); z-index: 0; pointer-events: none; display: none; }
+  .checkerboard.visible { display: block; }
+  #viewCanvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; z-index: 1; }
+  .drop-zone { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 10; cursor: pointer; background: var(--bg); }
   .drop-zone.hidden { display: none; }
-  .drop-zone.dragover { background: rgba(255,144,232,0.05); }
+  .drop-zone.dragover { background: rgba(255,144,232,0.08); }
   .drop-icon { width: 64px; height: 64px; border: 2px dashed var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--text-dim); transition: all 0.2s; }
   .drop-zone.dragover .drop-icon { border-color: var(--accent); color: var(--accent); }
   .drop-text { font-size: 13px; color: var(--text-dim); }
-  .drop-text span { color: var(--accent); text-decoration: underline; cursor: pointer; }
-  .hidden-input { display: none; }
+  .drop-text span { color: var(--accent); text-decoration: underline; }
 
-  .close-btn { position: absolute; top: 10px; right: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); cursor: pointer; padding: 4px 8px; font-size: 14px; font-family: inherit; z-index: 5; transition: all 0.15s; display: none; }
+  .close-btn { position: absolute; top: 10px; right: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); cursor: pointer; padding: 4px 9px; font-size: 14px; z-index: 5; display: none; transition: all 0.15s; }
   .close-btn:hover { border-color: #f44; color: #f44; }
-  .zoom-bar { position: absolute; bottom: 10px; right: 12px; display: flex; gap: 6px; align-items: center; background: var(--surface); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; color: var(--text-dim); z-index: 5; }
+  .zoom-bar { position: absolute; bottom: 10px; right: 12px; display: flex; gap: 6px; align-items: center; background: var(--surface); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; color: var(--text-dim); z-index: 5; display: none; }
   .zoom-bar button { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 2px 4px; font-family: inherit; }
   .zoom-bar button:hover { color: var(--text); }
-  .info-bar { position: absolute; bottom: 10px; left: 12px; display: flex; gap: 12px; background: var(--surface); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 10px; color: var(--text-dim); z-index: 5; }
+  .info-bar { position: absolute; bottom: 10px; left: 12px; display: flex; gap: 12px; background: var(--surface); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 10px; color: var(--text-dim); z-index: 5; display: none; }
 
-  .consent-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
-  .consent-overlay.hidden { display: none; }
-  .consent-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 420px; width: 90%; text-align: center; }
-  .consent-box h2 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
-  .consent-box p { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
-  .consent-box p strong { color: var(--text); }
-  .consent-actions { display: flex; gap: 8px; }
-  .consent-actions button { flex: 1; padding: 10px; font-size: 12px; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; }
-  .consent-accept { background: var(--accent); color: #000; }
-  .consent-cancel { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border) !important; }
+  .tip { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); font-size: 9px; color: var(--text-dim); cursor: help; font-weight: 700; margin-left: 5px; }
+  #tipBox { position: fixed; z-index: 9999; background: var(--text); color: var(--bg); padding: 7px 10px; border-radius: 6px; font-size: 10px; line-height: 1.45; width: 230px; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; }
 
-  .preset-tag { display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 3px; background: var(--gold); color: #000; font-weight: 700; margin-left: 6px; vertical-align: middle; }
-  #halftoneSection { display: flex; flex-direction: column; gap: 14px; }
-
-  .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); cursor: pointer; padding: 4px 6px; display: flex; align-items: center; transition: all 0.15s; }
-  .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+  .mode-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--surface2); cursor: pointer; transition: all 0.15s; }
+  .mode-card.active { border-color: var(--accent); background: rgba(255,144,232,0.06); }
+  .mode-card h3 { font-size: 12px; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+  .mode-card p { font-size: 10px; color: var(--text-dim); line-height: 1.4; }
+  .mode-card .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
+  .mode-card.active .dot { border-color: var(--accent); background: var(--accent); }
 
   body.light-mode { --bg: #f5f5f5; --surface: #ffffff; --surface2: #f0f0f0; --border: #e0e0e0; --text: #1a1a1a; --text-dim: #666; }
-  body.light-mode .header-logo { filter: invert(0) !important; }
-  body.light-mode .checkerboard { background-image: repeating-conic-gradient(#ddd 0% 25%, #eee 0% 50%) !important; }
 
-  .hint { font-size: 10px; color: var(--text-dim); line-height: 1.4; padding: 4px 0; }
-
-  /* Tooltips */
-  .tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); font-size: 9px; color: var(--text-dim); cursor: help; font-weight: 700; flex-shrink: 0; margin-left: 4px; }
-  #tipBox { position: fixed; z-index: 9999; background: var(--text); color: var(--bg); padding: 6px 10px; border-radius: 6px; font-size: 10px; font-weight: 400; line-height: 1.4; white-space: normal; width: 220px; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; }
-
-  /* Warning banner */
-  .dtf-warning { background: rgba(244,68,68,0.1); border: 1px solid rgba(244,68,68,0.3); border-radius: 6px; padding: 6px 8px; font-size: 10px; color: #f88; line-height: 1.4; display: none; }
-  .dtf-warning.visible { display: block; }
-  .dtf-ok { background: rgba(84,245,149,0.08); border: 1px solid rgba(84,245,149,0.2); border-radius: 6px; padding: 6px 8px; font-size: 10px; color: var(--accent2); line-height: 1.4; display: none; }
-  .dtf-ok.visible { display: block; }
-
-  /* Ink coverage bar */
-  .coverage-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .coverage-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-
-  /* PNG Info */
-  .png-info { display: none; }
-  .png-info.visible { display: flex; flex-direction: column; gap: 6px; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; }
-  .stat-card .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 2px; }
-  .stat-card .stat-main { font-size: 12px; font-weight: 600; }
-  .stat-card .stat-sub { font-size: 9px; color: var(--text-dim); margin-top: 1px; }
-  .dpi-ok { color: var(--accent2); } .dpi-warn { color: var(--gold); } .dpi-bad { color: #f44; }
-  .alpha-legend { display: flex; gap: 8px; flex-wrap: wrap; font-size: 9px; color: var(--text-dim); padding: 2px 0; }
-  .alpha-legend span { display: flex; align-items: center; gap: 3px; }
-  .alpha-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
-  .view-toggle { display: flex; gap: 3px; }
-  .view-toggle button { flex: 1; padding: 5px 4px; font-size: 10px; font-weight: 600; font-family: inherit; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
-  .view-toggle button:hover { border-color: var(--accent); color: var(--text); }
-  .view-toggle button.active { background: var(--accent); color: #000; border-color: var(--accent); }
-
-  /* Effect dual sliders */
-  .fx-row { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
-  .fx-row-top { display: flex; align-items: center; gap: 6px; }
-  .fx-row-top label { flex: 1; min-width: 0; }
-  .fx-row-sliders { display: flex; gap: 4px; align-items: center; padding-left: 20px; }
-  .fx-row-sliders span { font-size: 9px; color: var(--text-dim); white-space: nowrap; min-width: 28px; }
-  .fx-row-sliders input[type="range"] { flex: 1; min-width: 0; }
-
-  @media (max-width: 700px) {
+  @media (max-width: 760px) {
     .layout { flex-direction: column; }
-    .sidebar { width: 100%; min-width: 0; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar { width: 100%; min-width: 0; max-height: 42vh; border-right: none; border-bottom: 1px solid var(--border); }
     .canvas-area { min-height: 50vh; }
-    header h1 { font-size: 14px; }
   }
 </style>
 </head>
 <body>
 <div id="tipBox"></div>
 
-<div class="consent-overlay hidden" id="consentOverlay">
-  <div class="consent-box">
-    <h2>Design hochladen</h2>
-    <p>Dein Bild wird <strong>ausschließlich lokal in deinem Browser</strong> verarbeitet. Es werden keine Daten an einen Server übertragen.<br><br>Mit dem Klick auf „Akzeptieren" bestätigst du, dass du die Rechte an dem hochgeladenen Bild besitzt.</p>
-    <div class="consent-actions">
-      <button class="consent-cancel" id="consentCancel">Abbrechen</button>
-      <button class="consent-accept" id="consentAccept">Akzeptieren & Hochladen</button>
-    </div>
-  </div>
-</div>
-
 <header>
   <div style="display:flex; align-items:center; gap:10px;">
-    <img src="https://cdn.prod.website-files.com/63f77c4bf3743d2e8fc6a87c/645910af508b00af623c5e35_Vectors-Wrapper.svg" alt="exe" class="header-logo" style="height:22px; filter:invert(1);">
+    <img src="https://cdn.prod.website-files.com/63f77c4bf3743d2e8fc6a87c/645910af508b00af623c5e35_Vectors-Wrapper.svg" alt="exe" style="height:20px; filter:invert(1);" class="logo">
     <h1>Halftone Tool</h1>
   </div>
   <div style="display:flex; align-items:center; gap:8px;">
-    <button class="theme-toggle" id="themeToggle" title="Light/Dark">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </button>
-    <div class="badge">exe.network tools</div>
+    <button id="themeToggle" title="Light/Dark" style="background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-dim); cursor:pointer; padding:4px 7px;">🌙</button>
+    <div class="badge">DTF · exe.network</div>
   </div>
 </header>
 
 <div class="layout">
   <div class="sidebar">
 
-    <!-- Halftone Toggle -->
+    <!-- MODE -->
     <div>
+      <div class="section-title">Was soll gerastert werden?</div>
       <div class="control-group">
-        <label class="checkbox-row">
-          <input type="checkbox" id="halftoneEnabled" checked> <strong>Halftone Effect</strong>
-          <span class="tip" data-tip="Wandelt dein Bild in ein Punktraster um. Bei DTF-Druck sorgt das dafür, dass weniger Folie auf dem Textil landet — das Ergebnis fühlt sich weicher an und das Shirt-Material scheint durch.">?</span>
-        </label>
+        <div class="mode-card active" data-mode="transparency">
+          <h3><span class="dot"></span> Nur Halbtransparenz</h3>
+          <p>Volle Bereiche bleiben 1:1 erhalten. Nur weiche Übergänge (Glow, Schatten, Verläufe, <100% Deckkraft) werden zu Punkten.</p>
+        </div>
+        <div class="mode-card" data-mode="full">
+          <h3><span class="dot"></span> Ganzes Motiv</h3>
+          <p>Das komplette Motiv wird gerastert (für Fotos/Poster). Shirtfarbe wird ausgeknockt.</p>
+        </div>
       </div>
     </div>
 
-    <div id="halftoneSection">
-
-      <!-- DTF Status -->
-      <div id="dtfStatus">
-        <div class="dtf-ok" id="dtfOk">DTF-ready — Einstellungen sind druckbar</div>
-        <div class="dtf-warning" id="dtfWarn"></div>
-      </div>
-
-      <!-- DTF Presets -->
-      <div>
-        <div class="section-title">DTF Preset <span class="preset-tag">PRINT</span></div>
-        <select id="dtfPreset">
-          <option value="custom">Custom</option>
-          <option value="vintage" selected>Vintage / Streetwear (25 LPI)</option>
-          <option value="standard">Standard Retail (35 LPI)</option>
-          <option value="photo">Photo / HD (50 LPI)</option>
-          <option value="stochastic">Stochastic (FM)</option>
-        </select>
-        <div class="hint">Voreinstellungen die für DTF-Druck optimiert sind. LPI = Lines Per Inch (Rasterweite).</div>
-      </div>
-
-      <!-- Grid -->
-      <div>
-        <div class="section-title">Raster-Typ <span class="tip" data-tip="AM (Square/Hex) = festes Raster, Punktgröße variiert. FM (Stochastic) = zufällig platzierte gleich große Punkte, Dichte variiert. Radial = Punkte in Kreisform vom Zentrum aus.">?</span></div>
-        <div class="btn-group" id="gridType">
-          <button class="active" data-value="square">Square</button>
-          <button data-value="hex">Hex</button>
-          <button data-value="radial">Radial</button>
-          <button data-value="stochastic">FM</button>
-        </div>
-        <div class="hint" id="gridHint">Square/Hex: Klassisches Druckraster. FM: Feinere Details, aber DTF-Minimum beachten.</div>
-      </div>
-
-      <!-- Shape -->
-      <div>
-        <div class="section-title">Punkt-Form <span class="tip" data-tip="Die Form der einzelnen Rasterpunkte. Circle ist Standard für DTF — runde Punkte halten das Adhesive-Pulver am besten. Kreative Formen (Star, Heart) sind dekorativ, aber schwieriger zu drucken.">?</span></div>
-        <div class="btn-group" id="shapeType">
-          <button class="active" data-value="circle">Circle</button>
-          <button data-value="square">Square</button>
-          <button data-value="diamond">Diamond</button>
-          <button data-value="triangle">Triangle</button>
-          <button data-value="hex">Hex</button>
-          <button data-value="cross">Cross</button>
-          <button data-value="star">Star</button>
-          <button data-value="ring">Ring</button>
-          <button data-value="line">Line</button>
-          <button data-value="flower">Flower</button>
-          <button data-value="heart">Heart</button>
-          <button data-value="slash">Slash</button>
-        </div>
-      </div>
-
-      <!-- Parameters -->
-      <div>
-        <div class="section-title">Parameter</div>
-        <div class="control-group">
-          <label>Cell Size (px) <span class="value" id="cellSizeVal">8</span> <span class="tip" data-tip="Abstand zwischen Rasterpunkten in Pixeln. Größer = gröberes Raster (sichtbare Punkte, Vintage-Look). Kleiner = feineres Raster. DTF-Minimum: ~5px bei 300 DPI, damit Punkte groß genug für Adhesive-Pulver sind.">?</span></label>
-          <input type="range" id="cellSize" min="3" max="40" value="8" step="1">
-          <div class="hint" id="cellSizeHint"></div>
-
-          <label>Kontrast <span class="value" id="contrastVal">1.0</span> <span class="tip" data-tip="Verstärkt den Helligkeitsunterschied. Höherer Kontrast = mehr Schwarz/Weiß-Trennung, weniger Zwischentöne. Für DTF: 0.8–1.5 empfohlen.">?</span></label>
-          <input type="range" id="contrast" min="0.2" max="3" value="1" step="0.1">
-
-          <label>Min Tone <span class="value" id="minToneVal">5%</span> <span class="tip" data-tip="Punkte unter diesem Dunkelheitswert werden weggelassen. Verhindert zu kleine Punkte in hellen Bereichen die beim DTF-Druck nicht haften würden. 5–10% empfohlen.">?</span></label>
-          <input type="range" id="minTone" min="0" max="30" value="5" step="1">
-
-          <label>Max Tone <span class="value" id="maxToneVal">95%</span> <span class="tip" data-tip="Über diesem Wert werden Bereiche als Vollfläche gedruckt statt als Raster. DTF: 90–95% empfohlen. Verhindert dass sich Punkte in dunklen Bereichen überlappen.">?</span></label>
-          <input type="range" id="maxTone" min="70" max="100" value="95" step="1">
-
-          <label>Dot Gain Komp. <span class="value" id="dotGainVal">10%</span> <span class="tip" data-tip="Beim Drucken 'wachsen' Punkte durch Tinten-Ausbreitung (Dot Gain). Diese Kompensation verkleinert Punkte vorab um ~10–15%, damit das Druckergebnis stimmt. Ohne Kompensation werden Halftones zu dunkel.">?</span></label>
-          <input type="range" id="dotGain" min="0" max="30" value="10" step="1">
-
-          <label>Winkel <span class="value" id="angleVal">45°</span> <span class="tip" data-tip="Drehwinkel des Rasters. 45° ist Standard — minimiert Moiré-Muster (störende optische Überlagerungen). 0° für horizontale/vertikale Ausrichtung.">?</span></label>
-          <input type="range" id="angle" min="0" max="360" value="45" step="1">
-        </div>
-      </div>
-
-      <!-- Color Mode -->
-      <div>
-        <div class="section-title">Farbmodus <span class="tip" data-tip="Normalerweise sind Halftone-Punkte einfarbig (z.B. schwarz). 'Originalfarben' färbt jeden Punkt in der Farbe des Quellbilds. 'Original-Blend' zeigt in dunklen Bereichen das volle Originalbild.">?</span></div>
-        <div class="control-group">
-          <div class="color-row">
-            <input type="color" id="fgColor" value="#000000">
-            <span>Punkt-Farbe</span>
-          </div>
-          <label class="checkbox-row"><input type="checkbox" id="coloredDots"> Originalfarben auf Punkte</label>
-          <label class="checkbox-row"><input type="checkbox" id="blendOriginal"> Original-Blend</label>
-          <div id="blendControls" style="display:none;">
-            <div class="hint">Helle Bereiche = Halftone. Dunkle Bereiche = Originalbild.</div>
-            <div class="control-group" style="gap:6px; margin-top:4px;">
-              <label>Halftone bis <span class="value" id="blendLowVal">30%</span></label>
-              <input type="range" id="blendLow" min="0" max="100" value="30" step="1">
-              <label>Original ab <span class="value" id="blendHighVal">70%</span></label>
-              <input type="range" id="blendHigh" min="0" max="100" value="70" step="1">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ink Coverage -->
-      <div>
-        <div class="section-title">Tinten-Abdeckung <span class="tip" data-tip="Zeigt wie viel Fläche dein Design bedeckt. Weniger Abdeckung = weicherer Griff auf dem Shirt. DTF-Empfehlung: Farbe max. 90–95%, Weiß (Underbase) max. 85–90%.">?</span></div>
-        <div class="control-group">
-          <div style="display:flex; justify-content:space-between; font-size:11px;">
-            <span>Abdeckung</span>
-            <span id="coverageVal" style="color:var(--accent);">–</span>
-          </div>
-          <div class="coverage-bar"><div class="coverage-fill" id="coverageFill" style="width:0; background:var(--accent);"></div></div>
-          <div class="hint" id="coverageHint">Design laden um Abdeckung zu berechnen</div>
-        </div>
-      </div>
-
-    </div><!-- /halftoneSection -->
-
-    <!-- Options -->
+    <!-- SHIRT COLOR -->
     <div>
-      <div class="section-title">Optionen</div>
+      <div class="section-title">Shirt-Farbe <span class="tip" data-tip="Bestimmt den Vorschau-Hintergrund (damit du das echte Ergebnis siehst) und — im Modus 'Ganzes Motiv' — welche Farbe ausgeknockt wird (transparent bleibt).">?</span></div>
+      <div class="btn-group" id="shirtColor">
+        <button class="active" data-color="#000000">Schwarz</button>
+        <button data-color="#ffffff">Weiß</button>
+        <button data-color="#808080">Grau</button>
+        <button data-color="custom">Custom</button>
+      </div>
+      <div class="color-row" id="customColorRow" style="display:none; margin-top:8px;">
+        <input type="color" id="customColor" value="#3a5a40">
+        <span style="font-size:11px;">Echte Shirtfarbe wählen</span>
+      </div>
+    </div>
+
+    <!-- HALFTONE SCREEN -->
+    <div>
+      <div class="section-title">Raster (Halftone Screen)</div>
       <div class="control-group">
-        <label class="checkbox-row"><input type="checkbox" id="invertCheck"> Helligkeit invertieren <span class="tip" data-tip="Kehrt Hell/Dunkel um. Nützlich für Designs auf dunklen Shirts, wo helle Bereiche als Punkte gedruckt werden sollen.">?</span></label>
-        <label class="checkbox-row"><input type="checkbox" id="preserveAlpha" checked> Transparenz beibehalten <span class="tip" data-tip="Transparente Bereiche im Quellbild bleiben transparent im Halftone. Wichtig für DTF: Transparenz = kein Druck = Textil scheint durch.">?</span></label>
-        <div class="color-row" style="margin-top:4px"><input type="color" id="checkerColor" value="#ffffff"><span>Vorschau-Hintergrund</span></div>
+        <label>Punktgröße <span class="value" id="freqVal">35 LPI</span> <span class="tip" data-tip="Frequency in Lines Per Inch (bei 300 DPI). Niedriger = größere, gröbere Punkte. Höher = feinere Punkte, weichere Übergänge. DTF-Standard: 30–40 LPI.">?</span></label>
+        <input type="range" id="freq" min="15" max="55" value="35" step="1">
+        <div class="btn-group" id="freqPreset" style="margin-top:2px;">
+          <button data-freq="25">Grob</button>
+          <button class="active" data-freq="35">Standard</button>
+          <button data-freq="45">Fein</button>
+        </div>
+
+        <label style="margin-top:6px;">Winkel <span class="value" id="angleVal">22.5°</span> <span class="tip" data-tip="Rasterwinkel. 22,5° ist Siebdruck-Standard und vermeidet Moiré. 0° = horizontale/vertikale Ausrichtung.">?</span></label>
+        <input type="range" id="angle" min="0" max="45" value="22.5" step="0.5">
+
+        <label style="margin-top:6px;">Form <span class="tip" data-tip="Punktform. Round ist DTF-Standard (hält Kleberpulver am besten, weichste Übergänge).">?</span></label>
+        <div class="btn-group" id="shape">
+          <button class="active" data-shape="round">Round</button>
+          <button data-shape="diamond">Diamond</button>
+          <button data-shape="line">Line</button>
+        </div>
       </div>
     </div>
 
-    <!-- Background Removal -->
-    <div>
-      <div class="section-title">Hintergrund entfernen <span class="tip" data-tip="Entfernt einfarbige Hintergründe und macht sie transparent. Bei DTF ist Transparenz entscheidend — nur bedruckte Bereiche landen als Folie auf dem Shirt.">?</span></div>
+    <!-- TONE / LEVELS -->
+    <div id="levelsSection">
+      <div class="section-title" id="levelsTitle">Tonwerte (Levels)</div>
       <div class="control-group">
-        <label>Toleranz <span class="value" id="bgToleranceVal">30</span></label>
-        <input type="range" id="bgTolerance" min="1" max="100" value="30" step="1">
-        <div style="display:flex; gap:4px;">
-          <button class="action-btn" id="bgPickBtn" style="flex:1">Farbe wählen</button>
-          <button class="action-btn" id="bgRemoveWhite" style="flex:1">Weiß entfernen</button>
+        <label>Deckung / Weißpunkt <span class="value" id="coverageVal">55%</span> <span class="tip" data-tip="Ab diesem Wert wird alles voll deckend gedruckt (keine Punkte mehr). Niedriger = mehr Vollfläche/vibrant. Entspricht dem Weiß-Regler der Levels.">?</span></label>
+        <input type="range" id="coverage" min="10" max="95" value="55" step="1">
+
+        <label style="margin-top:4px;">Mitten (Gamma) <span class="value" id="gammaVal">1.00</span> <span class="tip" data-tip="DER Feinjustierungs-Regler. Trennt helle/mittlere Bereiche voneinander. Höher = helle Bereiche werden mehr zu Punkten (mehr Ink). Niedriger = helle Bereiche verschwinden schneller (Shirt scheint durch). Nutze diesen um ähnlich helle Töne zu differenzieren.">?</span></label>
+        <input type="range" id="gamma" min="0.2" max="4" value="1" step="0.02">
+
+        <label style="margin-top:4px;">Schwarzpunkt <span class="value" id="blackPtVal">5%</span> <span class="tip" data-tip="Killt zu kleine, matschige Punkte. Höher = mehr fast-transparente/dunkle Töne fallen ganz weg (sauberer, aber weniger Detail).">?</span></label>
+        <input type="range" id="blackPt" min="0" max="40" value="5" step="1">
+      </div>
+      <div class="hint" id="levelsHint" style="margin-top:6px;">💡 Kannst du helle Bereiche nicht trennen? Ziehe <b>Mitten (Gamma)</b> hoch und <b>Weißpunkt</b> runter.</div>
+    </div>
+
+    <!-- EDGES -->
+    <div>
+      <div class="section-title">Kanten <span class="tip" data-tip="Anti-Aliasing erzeugt halbtransparente Randpixel → weiße Ränder beim DTF-Druck. 'Hartes Alpha' macht jedes Pixel voll deckend oder voll transparent (Threshold), sauber für DTF.">?</span></div>
+      <div class="control-group">
+        <label style="cursor:pointer;"><span><input type="checkbox" id="hardAlpha" style="accent-color:var(--accent); margin-right:6px;">Hartes Alpha (Ränder schärfen)</span></label>
+        <div id="hardAlphaRow" style="display:none;">
+          <label>Schwelle <span class="value" id="thresholdVal">50%</span></label>
+          <input type="range" id="threshold" min="1" max="99" value="50" step="1">
+          <div class="hint">Pixel über der Schwelle → voll deckend, darunter → transparent. Standard 50%.</div>
         </div>
-        <button class="action-btn danger" id="bgUndo">Rückgängig</button>
       </div>
     </div>
 
-    <!-- Texture Effects -->
+    <!-- VIEW -->
     <div>
-      <div class="section-title">Textur-Effekte <span class="tip" data-tip="Radiergummi-Effekte: erzeugen Transparenz (Löcher im Druck), sodass das Textil durchscheint — wie ein alter, abgeblätterter Aufdruck. Grain = körnige Erosion, Dirt = organische Flecken, Scratches = Kratzer, Dust = Staubpartikel, Splatter = abgeplatzte Farbe, Worn = großflächig abgetragen, Vignette = Randverblassung.">?</span></div>
-      <div class="control-group" id="effectsPanel">
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_grain"> Grain</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_grain_int" min="0" max="100" value="30"><span>Size</span><input type="range" id="fx_grain_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_dirt"> Dirt</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_dirt_int" min="0" max="100" value="40"><span>Size</span><input type="range" id="fx_dirt_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_scratches"> Scratches</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_scratches_int" min="0" max="100" value="25"><span>Size</span><input type="range" id="fx_scratches_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_dust"> Dust</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_dust_int" min="0" max="100" value="20"><span>Size</span><input type="range" id="fx_dust_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_splatter"> Splatter</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_splatter_int" min="0" max="100" value="35"><span>Size</span><input type="range" id="fx_splatter_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_worn"> Worn</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_worn_int" min="0" max="100" value="30"><span>Size</span><input type="range" id="fx_worn_size" min="1" max="100" value="50"></div></div>
-        <div class="fx-row"><div class="fx-row-top"><label class="checkbox-row"><input type="checkbox" id="fx_vignette"> Vignette</label></div><div class="fx-row-sliders"><span>Int</span><input type="range" id="fx_vignette_int" min="0" max="100" value="50"><span>Size</span><input type="range" id="fx_vignette_size" min="1" max="100" value="50"></div></div>
-        <div style="margin-top:4px"><label>Seed <span class="value" id="seedVal">500</span></label><input type="range" id="seedSlider" min="1" max="9999" value="500" step="1"></div>
-        <button class="action-btn" id="reseedBtn">Zufälliger Seed</button>
+      <div class="section-title">Ansicht</div>
+      <div class="btn-group" id="viewMode">
+        <button class="active" data-view="shirt">Auf Shirt</button>
+        <button data-view="alpha">Transparenz</button>
+        <button data-view="original">Original</button>
       </div>
     </div>
 
-    <!-- PNG Info -->
+    <!-- EXPORT -->
     <div>
-      <div class="section-title">Datei-Info</div>
-      <div class="png-info" id="pngInfo">
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Auflösung</div><div class="stat-main" id="statRes">–</div><div class="stat-sub" id="statFileSize">–</div></div>
-          <div class="stat-card"><div class="stat-label">DPI</div><div class="stat-main" id="statDpi">–</div><div class="stat-sub" id="statDpiSub">–</div></div>
-          <div class="stat-card"><div class="stat-label">Größe (cm)</div><div class="stat-main" id="statCm">–</div><div class="stat-sub" id="statCmSub">–</div></div>
-          <div class="stat-card"><div class="stat-label">Transparenz</div><div class="stat-main" id="statAlpha">–</div><div class="stat-sub" id="statAlphaSub">–</div></div>
-        </div>
-        <div class="section-title" style="margin-top:6px;">Ansicht</div>
-        <div class="view-toggle" id="viewToggle">
-          <button class="active" data-view="halftone">Halftone</button>
-          <button data-view="original">Original</button>
-          <button data-view="alpha">Transparenz</button>
-        </div>
-        <div class="alpha-legend" id="alphaLegend" style="display:none;">
-          <span><span class="dot" style="background:#ff3cd2"></span> Transparent</span>
-          <span><span class="dot" style="background:#e0ff00"></span> Halbtransparent</span>
-          <span><span class="dot" style="background:#232323"></span> Opak</span>
-        </div>
-      </div>
-      <div class="hint" id="pngInfoHint">Bild laden um Infos zu sehen</div>
-    </div>
-
-    <!-- Export -->
-    <div>
-      <div class="section-title">Export <span class="tip" data-tip="PNG: Pixelbasiert, für RIP-Software. SVG: Vektorbasiert, unendlich skalierbar. Für DTF empfohlen: PNG bei 300 DPI in der tatsächlichen Druckgröße (z.B. 30cm breit).">?</span></div>
+      <div class="section-title">Export</div>
       <div class="control-group">
         <div style="display:flex; gap:6px; align-items:center;">
-          <label style="flex:1; font-size:11px;">Breite (cm) <input type="number" id="exportWidthCm" value="30" min="1" max="200" step="0.1" style="width:55px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px; font-size:11px; font-family:inherit; margin-left:4px;"></label>
-          <label style="flex:1; font-size:11px;">DPI <input type="number" id="exportDpi" value="300" min="72" max="1200" step="1" style="width:55px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px; font-size:11px; font-family:inherit; margin-left:4px;"></label>
+          <label style="flex:1; font-size:11px;">Breite (cm) <input type="number" id="exportWidthCm" value="30" min="1" max="200" step="0.1" style="width:52px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px; font-size:11px; font-family:inherit; margin-left:4px;"></label>
+          <label style="flex:1; font-size:11px;">DPI <input type="number" id="exportDpi" value="300" min="72" max="1200" step="1" style="width:52px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px; font-size:11px; font-family:inherit; margin-left:4px;"></label>
         </div>
-        <div style="font-size:10px; color:var(--text-dim);" id="exportInfo">→ 3543 × auto px</div>
+        <div class="hint" id="exportInfo">→ 3543 px breit</div>
       </div>
     </div>
 
     <div class="export-buttons">
       <button class="export-btn png" id="exportPng">PNG</button>
-      <button class="export-btn svg" id="exportSvg">SVG</button>
     </div>
   </div>
 
   <div class="canvas-area" id="canvasArea">
     <div class="checkerboard" id="checker"></div>
+    <canvas id="viewCanvas"></canvas>
+    <button class="close-btn" id="closeBtn">✕</button>
     <div class="drop-zone" id="dropZone">
       <div class="drop-icon">↑</div>
-      <div class="drop-text">Drop image or <span id="browseLink">browse</span></div>
+      <div class="drop-text">Bild ablegen oder <span id="browseLink">durchsuchen</span></div>
     </div>
-    <canvas id="viewCanvas" style="display:none;"></canvas>
-    <canvas id="originalCanvas" style="display:none;"></canvas>
-    <canvas id="alphaCanvas" style="display:none;"></canvas>
-    <button class="close-btn" id="closeBtn" title="Bild entfernen">✕</button>
-    <input type="file" accept="image/*" class="hidden-input" id="fileInput">
-    <div class="info-bar" id="infoBar" style="display:none;"><span id="infoSize"></span><span id="infoDots"></span></div>
-    <div class="zoom-bar" id="zoomBar" style="display:none;">
+    <div class="info-bar" id="infoBar"><span id="infoSize"></span><span id="infoAlpha"></span></div>
+    <div class="zoom-bar" id="zoomBar">
       <button id="zoomOut">−</button><span id="zoomLevel">100%</span><button id="zoomIn">+</button><button id="zoomFit">Fit</button>
     </div>
   </div>
 </div>
 
+<input type="file" accept="image/*" id="fileInput" style="display:none;">
+
 <script>
 (function() {
-  // ─── pHYs DPI Parser ───
-  function parsePngDpi(buffer) {
-    const bytes = new Uint8Array(buffer);
-    const sig = [137,80,78,71,13,10,26,10];
-    for (let i=0;i<8;i++) { if (bytes[i]!==sig[i]) return null; }
-    let off=8;
-    while (off<bytes.length-12) {
-      const len=(bytes[off]<<24)|(bytes[off+1]<<16)|(bytes[off+2]<<8)|bytes[off+3];
-      const type=String.fromCharCode(bytes[off+4],bytes[off+5],bytes[off+6],bytes[off+7]);
-      if (type==='pHYs') {
-        const ppuX=((bytes[off+8]<<24)>>>0)|(bytes[off+9]<<16)|(bytes[off+10]<<8)|bytes[off+11];
-        const ppuY=((bytes[off+12]<<24)>>>0)|(bytes[off+13]<<16)|(bytes[off+14]<<8)|bytes[off+15];
-        const unit=bytes[off+16];
-        if (unit===1) return {x:Math.round(ppuX*0.0254),y:Math.round(ppuY*0.0254),unitKnown:true};
-        return {x:ppuX,y:ppuY,unitKnown:false};
-      }
-      if (type==='IEND') break;
-      off+=12+len;
-    }
-    return null;
-  }
-
-  // ─── Tooltips (viewport-aware) ───
-  const tipBox=document.getElementById('tipBox');
-  document.addEventListener('mouseenter',e=>{
-    const t=e.target.closest('.tip');if(!t)return;
-    tipBox.textContent=t.dataset.tip;
-    tipBox.style.display='block';
-    const r=t.getBoundingClientRect();
-    let x=r.left, y=r.top-tipBox.offsetHeight-6;
-    // Zu weit rechts? Links vom ? anzeigen
-    if(x+220>window.innerWidth) x=r.right-220;
-    // Zu weit oben? Unter dem ? anzeigen
-    if(y<4) y=r.bottom+6;
-    // Noch rechts clamp
-    x=Math.max(4, Math.min(x, window.innerWidth-224));
-    tipBox.style.left=x+'px'; tipBox.style.top=y+'px';
-  },true);
-  document.addEventListener('mouseleave',e=>{
-    if(e.target.closest('.tip')) tipBox.style.display='none';
-  },true);
-
   // ─── State ───
-  let sourceData=null, alphaData=null, srcW=0, srcH=0;
-  let backupData=null, rafId=null, pngFileBuffer=null;
-  let currentView='halftone';
-  let zoom=1, panX=0, panY=0;
-  let isDragging=false, dragStartX=0, dragStartY=0, panStartX=0, panStartY=0;
-  let isPicking=false;
-  let lastDotCount=0, lastCoverage=0;
+  let srcW = 0, srcH = 0;
+  let srcRGBA = null;              // Uint8ClampedArray original pixels
+  let sourceImg = null;
+  let zoom = 1, panX = 0, panY = 0;
+  let isDragging = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+  let rafId = null;
 
-  const renderCanvas=document.createElement('canvas');
-  const rCtx=renderCanvas.getContext('2d');
-  const viewCanvas=document.getElementById('viewCanvas');
-  const vCtx=viewCanvas.getContext('2d');
-  const originalCanvas=document.getElementById('originalCanvas');
-  const oCtx=originalCanvas.getContext('2d');
-  const alphaCanvas=document.getElementById('alphaCanvas');
-  const aCtx=alphaCanvas.getContext('2d');
-  const dropZone=document.getElementById('dropZone');
-  const fileInput=document.getElementById('fileInput');
-  const canvasArea=document.getElementById('canvasArea');
+  let mode = 'transparency';
+  let shirtColor = '#000000';
+  let currentView = 'shirt';
 
-  const getVal=id=>document.getElementById(id).value;
-  const getNum=id=>parseFloat(document.getElementById(id).value);
-  const getChecked=id=>document.getElementById(id).checked;
-  const getActive=groupId=>{const b=document.querySelector(`#${groupId} button.active`);return b?b.dataset.value:'circle';};
+  const viewCanvas = document.getElementById('viewCanvas');
+  const vCtx = viewCanvas.getContext('2d');
+  const outCanvas = document.createElement('canvas');   // pure halftone result (transparent)
+  const oCtx = outCanvas.getContext('2d');
+  const canvasArea = document.getElementById('canvasArea');
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const checker = document.getElementById('checker');
 
+  const $ = id => document.getElementById(id);
+  const getNum = id => parseFloat($(id).value);
+  const getChecked = id => $(id).checked;
 
-  // ─── Button groups ───
-  document.querySelectorAll('.btn-group').forEach(group=>{
-    group.addEventListener('click',e=>{
-      const btn=e.target.closest('button');if(!btn)return;
-      group.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('dtfPreset').value='custom';
-      scheduleRender();
-    });
-  });
-
-  // ─── Sliders ───
-  const pctIds=['minTone','maxTone','dotGain','blendLow','blendHigh'];
-  document.querySelectorAll('input[type="range"]').forEach(input=>{
-    input.addEventListener('input',()=>{
-      const valEl=document.getElementById(input.id+'Val');
-      if(valEl){let v=input.value;if(input.id==='angle')v+='°';if(pctIds.includes(input.id))v+='%';valEl.textContent=v;}
-      if(!['bgTolerance','seedSlider','blendLow','blendHigh'].includes(input.id)) document.getElementById('dtfPreset').value='custom';
-      scheduleRender();
-    });
-  });
-
-  document.querySelectorAll('input[type="checkbox"],input[type="color"]').forEach(el=>{el.addEventListener('input',scheduleRender);});
-
-  // ─── Blend controls toggle ───
-  document.getElementById('blendOriginal').addEventListener('change',function(){
-    document.getElementById('blendControls').style.display=this.checked?'':'none';scheduleRender();
-  });
-
-  // ─── DTF Presets ───
-  document.getElementById('dtfPreset').addEventListener('change',function(){
-    const presets={
-      vintage:   {cell:12,contrast:1.2,minTone:8, maxTone:92,dotGain:12,angle:45,grid:'hex',   shape:'circle'},
-      standard:  {cell:8, contrast:1.0,minTone:5, maxTone:95,dotGain:10,angle:45,grid:'square',shape:'circle'},
-      photo:     {cell:5, contrast:0.9,minTone:3, maxTone:97,dotGain:8, angle:45,grid:'hex',   shape:'circle'},
-      stochastic:{cell:6, contrast:1.0,minTone:5, maxTone:95,dotGain:10,angle:0, grid:'stochastic',shape:'circle'},
-    };
-    const p=presets[this.value];if(!p)return;
-    const set=(id,v)=>{document.getElementById(id).value=v;const ve=document.getElementById(id+'Val');if(ve){let s=''+v;if(id==='angle')s+='°';if(pctIds.includes(id))s+='%';ve.textContent=s;}};
-    set('cellSize',p.cell);set('contrast',p.contrast);set('minTone',p.minTone);
-    set('maxTone',p.maxTone);set('dotGain',p.dotGain);set('angle',p.angle);
-    document.querySelectorAll('#gridType button').forEach(b=>b.classList.toggle('active',b.dataset.value===p.grid));
-    document.querySelectorAll('#shapeType button').forEach(b=>b.classList.toggle('active',b.dataset.value===p.shape));
-    scheduleRender();
-  });
-
-  // ─── Theme Toggle ───
-  document.getElementById('themeToggle').addEventListener('click',()=>{
-    document.body.classList.toggle('light-mode');
-    const l=document.body.classList.contains('light-mode');
-    document.getElementById('themeToggle').innerHTML=l
-      ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'
-      :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-    updateChecker();
-  });
-
-  function updateChecker(){
-    const c=document.getElementById('checkerColor').value;
-    const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
-    document.getElementById('checker').style.backgroundImage=`repeating-conic-gradient(rgb(${Math.max(0,r-20)},${Math.max(0,g-20)},${Math.max(0,b-20)}) 0% 25%, rgb(${Math.min(255,r+10)},${Math.min(255,g+10)},${Math.min(255,b+10)}) 0% 50%)`;
-  }
-  updateChecker();
-  document.getElementById('checkerColor').addEventListener('input',updateChecker);
-
-  document.getElementById('halftoneEnabled').addEventListener('change',function(){
-    document.getElementById('halftoneSection').style.display=this.checked?'':'none';scheduleRender();
-  });
-
-  function updateExportInfo(){
-    const cmW=parseFloat(document.getElementById('exportWidthCm').value)||30;
-    const dpi=parseInt(document.getElementById('exportDpi').value)||300;
-    document.getElementById('exportInfo').textContent=`→ ${Math.round(cmW/2.54*dpi).toLocaleString()} × auto px`;
-  }
-  updateExportInfo();
-  document.getElementById('exportWidthCm').addEventListener('input',updateExportInfo);
-  document.getElementById('exportDpi').addEventListener('input',updateExportInfo);
-
-  // ─── DTF Safety Check ───
-  function checkDtfSafety() {
-    const cellSize=getNum('cellSize');
-    const gridType=getActive('gridType');
-    const warnings=[];
-
-    // Calculate approximate dot size in mm at 300 DPI
-    const dotMm = (cellSize / 300) * 25.4;
-    const lpi = 25.4 / (cellSize / 300 * 25.4); // approximate
-
-    if (dotMm < 0.5) warnings.push(`Punkte zu klein (${dotMm.toFixed(2)}mm). DTF-Minimum: 0.5mm. Cell Size erhöhen.`);
-    if (gridType === 'stochastic' && cellSize < 5) warnings.push('FM-Screening bei Cell Size <5 erzeugt zu feine Punkte für DTF. Min. 5–6px empfohlen.');
-    if (lpi > 65) warnings.push(`LPI zu hoch (~${Math.round(lpi)}). Über 65 LPI peelen DTF-Punkte — Adhesive hält nicht.`);
-    if (getNum('dotGain') === 0) warnings.push('Dot Gain Kompensation auf 0 — Druck wird dunkler als Vorschau. 10–15% empfohlen.');
-
-    const warnEl = document.getElementById('dtfWarn');
-    const okEl = document.getElementById('dtfOk');
-    if (warnings.length > 0) {
-      warnEl.innerHTML = warnings.join('<br>');
-      warnEl.classList.add('visible');
-      okEl.classList.remove('visible');
-    } else {
-      warnEl.classList.remove('visible');
-      okEl.classList.add('visible');
-    }
-
-    // Cell size hint
-    document.getElementById('cellSizeHint').textContent = `~${dotMm.toFixed(1)}mm Punkt | ~${Math.round(lpi)} LPI bei 300 DPI`;
-  }
-
-  // ─── Consent ───
-  const consentOverlay=document.getElementById('consentOverlay');
-  let pendingFile=null, consentGiven=false;
-  function requestConsent(f){if(consentGiven){loadImage(f);return;}pendingFile=f;consentOverlay.classList.remove('hidden');}
-  document.getElementById('consentAccept').addEventListener('click',()=>{consentGiven=true;consentOverlay.classList.add('hidden');if(pendingFile){loadImage(pendingFile);pendingFile=null;}});
-  document.getElementById('consentCancel').addEventListener('click',()=>{pendingFile=null;consentOverlay.classList.add('hidden');fileInput.value='';});
+  // ─── Tooltips ───
+  const tipBox = $('tipBox');
+  document.addEventListener('mouseenter', e => {
+    const t = e.target.closest && e.target.closest('.tip'); if (!t) return;
+    tipBox.textContent = t.dataset.tip; tipBox.style.display = 'block';
+    const r = t.getBoundingClientRect();
+    let x = r.left, y = r.top - tipBox.offsetHeight - 6;
+    if (x + 230 > window.innerWidth) x = r.right - 230;
+    if (y < 4) y = r.bottom + 6;
+    x = Math.max(4, Math.min(x, window.innerWidth - 234));
+    tipBox.style.left = x + 'px'; tipBox.style.top = y + 'px';
+  }, true);
+  document.addEventListener('mouseleave', e => { if (e.target.closest && e.target.closest('.tip')) tipBox.style.display = 'none'; }, true);
 
   // ─── File handling ───
-  document.getElementById('browseLink').addEventListener('click',()=>fileInput.click());
-  dropZone.addEventListener('click',e=>{if(e.target===dropZone||e.target.closest('.drop-icon')||e.target.closest('.drop-text'))fileInput.click();});
-  fileInput.addEventListener('change',e=>{if(e.target.files[0])requestConsent(e.target.files[0]);});
-  ['dragenter','dragover'].forEach(ev=>canvasArea.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.add('dragover');}));
-  ['dragleave','drop'].forEach(ev=>canvasArea.addEventListener(ev,e=>{e.preventDefault();dropZone.classList.remove('dragover');}));
-  canvasArea.addEventListener('drop',e=>{if(e.dataTransfer.files[0])requestConsent(e.dataTransfer.files[0]);});
+  $('browseLink').addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('click', e => { if (e.target === dropZone || e.target.closest('.drop-icon') || e.target.closest('.drop-text')) fileInput.click(); });
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); });
+  ['dragenter','dragover'].forEach(ev => canvasArea.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => canvasArea.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
+  canvasArea.addEventListener('drop', e => { if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]); });
 
-  function loadImage(file){
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-      pngFileBuffer=e.target.result;
-      const dpiInfo=(file.type==='image/png')?parsePngDpi(pngFileBuffer):null;
-      const img=new Image();
-      img.onload=()=>{
-        srcW=img.width;srcH=img.height;
-        const tmp=document.createElement('canvas');tmp.width=srcW;tmp.height=srcH;
-        const tc=tmp.getContext('2d');tc.drawImage(img,0,0);
-        const imgData=tc.getImageData(0,0,srcW,srcH);
-        sourceData=imgData.data;
-        alphaData=new Uint8Array(srcW*srcH);
-        for(let i=0;i<srcW*srcH;i++)alphaData[i]=sourceData[i*4+3];
-        backupData=new Uint8ClampedArray(sourceData);
-        originalCanvas.width=srcW;originalCanvas.height=srcH;oCtx.drawImage(img,0,0);
-        buildAlphaMask();
-        updatePngInfo(file,dpiInfo);
-        dropZone.classList.add('hidden');
-        viewCanvas.style.display='block';
-        document.getElementById('closeBtn').style.display='block';
-        document.getElementById('zoomBar').style.display='flex';
-        document.getElementById('infoBar').style.display='flex';
-        document.getElementById('infoSize').textContent=`${srcW}×${srcH}`;
-        setView('halftone');
-        zoomToFit();
-        scheduleRender();
-        URL.revokeObjectURL(img.src);
-      };
-      img.src=URL.createObjectURL(file);
+  function loadImage(file) {
+    const img = new Image();
+    img.onload = () => {
+      srcW = img.width; srcH = img.height; sourceImg = img;
+      const tmp = document.createElement('canvas'); tmp.width = srcW; tmp.height = srcH;
+      const tc = tmp.getContext('2d'); tc.drawImage(img, 0, 0);
+      srcRGBA = tc.getImageData(0, 0, srcW, srcH).data;
+      outCanvas.width = srcW; outCanvas.height = srcH;
+      viewCanvas.width = srcW; viewCanvas.height = srcH;
+
+      // alpha stats
+      let semi = 0, transp = 0;
+      for (let i = 3; i < srcRGBA.length; i += 4) { const a = srcRGBA[i]; if (a === 0) transp++; else if (a < 255) semi++; }
+      const total = srcW * srcH;
+
+      dropZone.classList.add('hidden');
+      $('closeBtn').style.display = 'block';
+      $('zoomBar').style.display = 'flex';
+      $('infoBar').style.display = 'flex';
+      $('infoSize').textContent = `${srcW}×${srcH}`;
+      $('infoAlpha').textContent = `${(semi/total*100).toFixed(1)}% halbtransparent`;
+      URL.revokeObjectURL(img.src);
+      zoomToFit();
+      render();
     };
-    reader.readAsArrayBuffer(file);
+    img.src = URL.createObjectURL(file);
   }
 
-  function buildAlphaMask(){
-    alphaCanvas.width=srcW;alphaCanvas.height=srcH;
-    const md=aCtx.createImageData(srcW,srcH);const d=md.data;
-    for(let i=0;i<srcW*srcH;i++){
-      const a=alphaData[i],px=i%srcW,py=Math.floor(i/srcW),si=i*4;
-      if(a===0){const ck=((Math.floor(px/10)+Math.floor(py/10))%2===0);d[si]=ck?255:180;d[si+1]=ck?60:40;d[si+2]=ck?210:150;d[si+3]=255;}
-      else if(a<255){d[si]=224;d[si+1]=255;d[si+2]=0;d[si+3]=255;}
-      else{d[si]=35;d[si+1]=35;d[si+2]=35;d[si+3]=255;}
-    }
-    aCtx.putImageData(md,0,0);
-  }
-
-  function updatePngInfo(file,dpiInfo){
-    const dpi=dpiInfo?.unitKnown?dpiInfo.x:null;
-    const wCm=dpi?(srcW/dpi)*2.54:null, hCm=dpi?(srcH/dpi)*2.54:null;
-    let tPx=0,sPx=0;
-    for(let i=0;i<srcW*srcH;i++){if(alphaData[i]===0)tPx++;else if(alphaData[i]<255)sPx++;}
-    const total=srcW*srcH;
-    document.getElementById('statRes').textContent=`${srcW} × ${srcH} px`;
-    document.getElementById('statFileSize').textContent=`${(file.size/1024).toFixed(0)} KB`+(file.size>1048576?` (${(file.size/1048576).toFixed(1)} MB)`:'');
-    const dpiEl=document.getElementById('statDpi');
-    if(dpi){const cls=dpi>=300?'dpi-ok':dpi>=150?'dpi-warn':'dpi-bad';dpiEl.innerHTML=`<span class="${cls}">${dpi} dpi</span>`;document.getElementById('statDpiSub').textContent=dpi>=300?'DTF-ready':dpi>=150?'Akzeptabel':'Zu niedrig';}
-    else{dpiEl.innerHTML='<span class="dpi-warn">Unbekannt</span>';document.getElementById('statDpiSub').textContent='Kein pHYs-Chunk';}
-    document.getElementById('statCm').textContent=wCm?`${wCm.toFixed(1)} × ${hCm.toFixed(1)} cm`:'–';
-    document.getElementById('statCmSub').textContent=wCm?`bei ${dpi} dpi`:'Benötigt DPI';
-    const tPct=((tPx/total)*100).toFixed(1), sPct=((sPx/total)*100).toFixed(1);
-    document.getElementById('statAlpha').textContent=`${tPct}% transparent`;
-    document.getElementById('statAlphaSub').textContent=parseFloat(sPct)>0?`+ ${sPct}% halbtransparent`:`${(100-parseFloat(tPct)).toFixed(1)}% opak`;
-    document.getElementById('pngInfo').classList.add('visible');
-    document.getElementById('pngInfoHint').style.display='none';
-  }
-
-
-  // ─── View Toggle ───
-  function setView(v){
-    currentView=v;
-    document.querySelectorAll('#viewToggle button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
-    viewCanvas.style.display    =(v==='halftone')?'block':'none';
-    originalCanvas.style.display=(v==='original')?'block':'none';
-    alphaCanvas.style.display   =(v==='alpha')?'block':'none';
-        document.getElementById('alphaLegend').style.display=(v==='alpha')?'':'none';
-            document.getElementById('zoomBar').style.display=sourceData?'flex':'none';
-        zoomToFit();
-  }
-  document.getElementById('viewToggle').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!sourceData)return;setView(b.dataset.view);});
-
-  // ─── Close ───
-  document.getElementById('closeBtn').addEventListener('click',()=>{
-    sourceData=null;alphaData=null;backupData=null;pngFileBuffer=null;srcW=0;srcH=0;
-    [viewCanvas,originalCanvas,alphaCanvas].forEach(c=>c.style.display='none');
-    document.getElementById('closeBtn').style.display='none';
-    document.getElementById('zoomBar').style.display='none';
-    document.getElementById('infoBar').style.display='none';
-    document.getElementById('pngInfo').classList.remove('visible');
-    document.getElementById('pngInfoHint').style.display='';
-    dropZone.classList.remove('hidden');fileInput.value='';consentGiven=false;currentView='halftone';
+  $('closeBtn').addEventListener('click', () => {
+    srcRGBA = null; sourceImg = null; srcW = srcH = 0;
+    $('closeBtn').style.display = 'none'; $('zoomBar').style.display = 'none'; $('infoBar').style.display = 'none';
+    dropZone.classList.remove('hidden'); fileInput.value = '';
+    vCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
   });
 
-  // ─── Zoom & Pan ───
-  function zoomToFit(){
-    const r=canvasArea.getBoundingClientRect();
-    const cw=srcW;
-    const ch=srcH;
-    zoom=Math.min((r.width-40)/cw,(r.height-40)/ch,1);
-    panX=(r.width-cw*zoom)/2;panY=(r.height-ch*zoom)/2;
-    updateViewTransform();
-  }
-  function updateViewTransform(){
-    const t=`translate(${panX}px,${panY}px) scale(${zoom})`;
-    [viewCanvas,originalCanvas,alphaCanvas].forEach(c=>c.style.transform=t);
-    document.getElementById('zoomLevel').textContent=Math.round(zoom*100)+'%';
+  // ─── Controls ───
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      mode = this.dataset.mode;
+      // Levels section label
+      $('levelsTitle').textContent = mode === 'full' ? 'Tonwerte (Levels)' : 'Übergang';
+      render();
+    });
+  });
+
+  document.querySelectorAll('#shirtColor button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#shirtColor button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      if (this.dataset.color === 'custom') {
+        $('customColorRow').style.display = 'flex';
+        shirtColor = $('customColor').value;
+      } else {
+        $('customColorRow').style.display = 'none';
+        shirtColor = this.dataset.color;
+      }
+      updateShirtPreview(); render();
+    });
+  });
+  $('customColor').addEventListener('input', function() { shirtColor = this.value; updateShirtPreview(); render(); });
+
+  // Frequency
+  $('freq').addEventListener('input', function() {
+    $('freqVal').textContent = this.value + ' LPI';
+    document.querySelectorAll('#freqPreset button').forEach(b => b.classList.toggle('active', b.dataset.freq === this.value));
+    render();
+  });
+  document.querySelectorAll('#freqPreset button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#freqPreset button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      $('freq').value = this.dataset.freq; $('freqVal').textContent = this.dataset.freq + ' LPI';
+      render();
+    });
+  });
+  $('angle').addEventListener('input', function() { $('angleVal').textContent = this.value + '°'; render(); });
+  document.querySelectorAll('#shape button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#shape button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active'); render();
+    });
+  });
+  $('coverage').addEventListener('input', function() { $('coverageVal').textContent = this.value + '%'; render(); });
+  $('gamma').addEventListener('input', function() { $('gammaVal').textContent = parseFloat(this.value).toFixed(2); render(); });
+  $('blackPt').addEventListener('input', function() { $('blackPtVal').textContent = this.value + '%'; render(); });
+
+  $('hardAlpha').addEventListener('change', function() { $('hardAlphaRow').style.display = this.checked ? 'block' : 'none'; render(); });
+  $('threshold').addEventListener('input', function() { $('thresholdVal').textContent = this.value + '%'; render(); });
+
+  document.querySelectorAll('#viewMode button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#viewMode button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active'); currentView = this.dataset.view;
+      updateShirtPreview(); render();
+    });
+  });
+
+  $('themeToggle').addEventListener('click', () => document.body.classList.toggle('light-mode'));
+
+  function updateShirtPreview() {
+    if (currentView === 'alpha') { checker.classList.add('visible'); canvasArea.style.background = ''; }
+    else if (currentView === 'original') { checker.classList.remove('visible'); canvasArea.style.background = '#808080'; }
+    else { checker.classList.remove('visible'); canvasArea.style.background = shirtColor; }
   }
 
-  canvasArea.addEventListener('wheel',e=>{if(!sourceData)return;e.preventDefault();const r=canvasArea.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;const oz=zoom;zoom=Math.max(0.05,Math.min(20,zoom*(e.deltaY>0?0.9:1.1)));panX=mx-(mx-panX)*(zoom/oz);panY=my-(my-panY)*(zoom/oz);updateViewTransform();},{passive:false});
-  canvasArea.addEventListener('mousedown',e=>{if(!sourceData||e.button!==0)return;if(isPicking){pickColorAt(e);return;}isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;panStartX=panX;panStartY=panY;canvasArea.classList.add('dragging');});
-  window.addEventListener('mousemove',e=>{if(!isDragging)return;panX=panStartX+(e.clientX-dragStartX);panY=panStartY+(e.clientY-dragStartY);updateViewTransform();});
-  window.addEventListener('mouseup',()=>{isDragging=false;canvasArea.classList.remove('dragging');});
-  document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(20,zoom*1.3);updateViewTransform();});
-  document.getElementById('zoomOut').addEventListener('click',()=>{zoom=Math.max(0.05,zoom/1.3);updateViewTransform();});
-  document.getElementById('zoomFit').addEventListener('click',zoomToFit);
+  const getActiveShape = () => document.querySelector('#shape button.active').dataset.shape;
 
-  // ─── Background Removal ───
-  document.getElementById('bgRemoveWhite').addEventListener('click',()=>removeBgColor(255,255,255));
-  document.getElementById('bgUndo').addEventListener('click',()=>{if(!backupData)return;sourceData=new Uint8ClampedArray(backupData);for(let i=0;i<srcW*srcH;i++)alphaData[i]=sourceData[i*4+3];buildAlphaMask();scheduleRender();});
-  document.getElementById('bgPickBtn').addEventListener('click',()=>{isPicking=!isPicking;canvasArea.classList.toggle('picking',isPicking);document.getElementById('bgPickBtn').textContent=isPicking?'Klick ins Bild...':'Farbe wählen';});
-  function pickColorAt(e){const r=canvasArea.getBoundingClientRect();const ix=Math.floor((e.clientX-r.left-panX)/zoom),iy=Math.floor((e.clientY-r.top-panY)/zoom);if(ix<0||ix>=srcW||iy<0||iy>=srcH)return;const idx=(iy*srcW+ix)*4;removeBgColor(sourceData[idx],sourceData[idx+1],sourceData[idx+2]);isPicking=false;canvasArea.classList.remove('picking');document.getElementById('bgPickBtn').textContent='Farbe wählen';}
-  function removeBgColor(tr,tg,tb){if(!sourceData)return;const tol=getNum('bgTolerance'),tolSq=tol*tol*3;for(let i=0;i<srcW*srcH;i++){const idx=i*4;const dr=sourceData[idx]-tr,dg=sourceData[idx+1]-tg,db=sourceData[idx+2]-tb;const dSq=dr*dr+dg*dg+db*db;if(dSq<tolSq){const fade=Math.max(0,1-Math.sqrt(dSq/tolSq));const na=Math.round(sourceData[idx+3]*(1-fade));sourceData[idx+3]=na;alphaData[i]=na;}}buildAlphaMask();scheduleRender();}
-  document.getElementById('bgTolerance').addEventListener('input',function(){document.getElementById('bgToleranceVal').textContent=this.value;});
+  // ─── Levels helper (control 0..1, 1 = full ink) ───
+  function applyLevels(c) {
+    const blackPt = getNum('blackPt') / 100;
+    const whitePt = getNum('coverage') / 100;  // above this = full ink
+    const gamma = getNum('gamma');             // midtone: >1 lifts mids toward ink
+    if (c <= blackPt) return 0;
+    if (c >= whitePt) return 1;
+    c = (c - blackPt) / (whitePt - blackPt);
+    return Math.pow(c, 1 / gamma);
+  }
+
+  // ─── Color distance normalized 0..1 ───
+  const MAXDIST = Math.sqrt(3 * 255 * 255);
+  function shirtRGB() {
+    return [parseInt(shirtColor.slice(1,3),16), parseInt(shirtColor.slice(3,5),16), parseInt(shirtColor.slice(5,7),16)];
+  }
 
   // ─── Scheduling ───
-  function scheduleRender(){if(rafId)cancelAnimationFrame(rafId);rafId=requestAnimationFrame(render);}
+  function scheduleRender() { if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(render); }
+  window.render = render;
 
-  // ─── Pixel access ───
-  function getPixel(x,y){x=Math.max(0,Math.min(Math.floor(x),srcW-1));y=Math.max(0,Math.min(Math.floor(y),srcH-1));const idx=(y*srcW+x)*4;return{r:sourceData[idx],g:sourceData[idx+1],b:sourceData[idx+2],a:alphaData[y*srcW+x]};}
+  // ─── MAIN RENDER — per-pixel halftone screen ───
+  function render() {
+    if (!srcRGBA) return;
 
-  // ─── Perlin Noise ───
-  const Perlin=(()=>{const p=[];const perm=new Uint8Array(512);const gradP=new Array(512);const grad3=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];function seed(s){if(s>0&&s<1)s*=65536;s=Math.floor(s);if(s<256)s|=s<<8;for(let i=0;i<256;i++){let v=(i&1)?p[i]^(s&255):p[i]^((s>>8)&255);perm[i]=perm[i+256]=v;gradP[i]=gradP[i+256]=grad3[v%12];}}for(let i=0;i<256;i++)p[i]=i;for(let i=255;i>0;i--){const n=Math.floor((i+1)*Math.random());[p[i],p[n]]=[p[n],p[i]];}seed(500);function fade(t){return t*t*t*(t*(t*6-15)+10);}function lerp(a,b,t){return(1-t)*a+t*b;}function dot3(g,x,y,z){return g[0]*x+g[1]*y+g[2]*z;}function perlin3(x,y,z){let X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);const u=fade(x),v=fade(y),w=fade(z);const A=perm[X]+Y,AA=perm[A]+Z,AB=perm[A+1]+Z,B=perm[X+1]+Y,BA=perm[B]+Z,BB=perm[B+1]+Z;return lerp(lerp(lerp(dot3(gradP[AA],x,y,z),dot3(gradP[BA],x-1,y,z),u),lerp(dot3(gradP[AB],x,y-1,z),dot3(gradP[BB],x-1,y-1,z),u),v),lerp(lerp(dot3(gradP[AA+1],x,y,z-1),dot3(gradP[BA+1],x-1,y,z-1),u),lerp(dot3(gradP[AB+1],x,y-1,z-1),dot3(gradP[BB+1],x-1,y-1,z-1),u),v),w);}function perlin2(x,y){return perlin3(x,y,0);}function fbm(x,y,oct,pers,lac){let t=0,a=1,f=1,m=0;for(let i=0;i<oct;i++){t+=perlin2(x*f,y*f)*a;m+=a;a*=pers;f*=lac;}return t/m;}return{seed,perlin2,fbm};})();
-  let noiseSeed=500;Perlin.seed(noiseSeed);
-  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-  document.getElementById('seedSlider').addEventListener('input',function(){noiseSeed=parseInt(this.value);document.getElementById('seedVal').textContent=this.value;Perlin.seed(noiseSeed);scheduleRender();});
-  document.getElementById('reseedBtn').addEventListener('click',()=>{noiseSeed=Math.floor(Math.random()*9999)+1;document.getElementById('seedSlider').value=noiseSeed;document.getElementById('seedVal').textContent=noiseSeed;Perlin.seed(noiseSeed);scheduleRender();});
-  document.querySelectorAll('#effectsPanel input').forEach(el=>{el.addEventListener('input',scheduleRender);el.addEventListener('change',scheduleRender);});
-
-  // ─── Main Render ───
-  function render(){
-    if(!sourceData)return;
-    const cellSize=getNum('cellSize'),contrast=getNum('contrast');
-    const minTone=getNum('minTone')/100,maxTone=getNum('maxTone')/100;
-    const dotGainComp=getNum('dotGain')/100,angleDeg=getNum('angle');
-    const invert=getChecked('invertCheck'),preserveAlpha=getChecked('preserveAlpha');
-    const fgColor=getVal('fgColor'),gridType=getActive('gridType'),shapeType=getActive('shapeType');
-    const angleRad=(angleDeg*Math.PI)/180;
-    const halftoneEnabled=getChecked('halftoneEnabled');
-    const coloredDots=getChecked('coloredDots');
-    const doBlend=getChecked('blendOriginal');
-    const blendLow=getNum('blendLow')/100,blendHigh=getNum('blendHigh')/100;
-
-    // DTF safety check
-    checkDtfSafety();
-
-    renderCanvas.width=srcW;renderCanvas.height=srcH;
-    rCtx.clearRect(0,0,srcW,srcH);
-
-    if(!halftoneEnabled){
-      const imgData=rCtx.createImageData(srcW,srcH);
-      for(let i=0;i<srcW*srcH;i++){const si=i*4;imgData.data[si]=sourceData[si];imgData.data[si+1]=sourceData[si+1];imgData.data[si+2]=sourceData[si+2];imgData.data[si+3]=alphaData[i];}
-      rCtx.putImageData(imgData,0,0);applyEffects();
-      document.getElementById('infoDots').textContent='no halftone';
-      viewCanvas.width=srcW;viewCanvas.height=srcH;vCtx.clearRect(0,0,srcW,srcH);vCtx.drawImage(renderCanvas,0,0);
-      updateCoverage();return;
+    // Original view: just show source
+    if (currentView === 'original') {
+      const id = oCtx.createImageData(srcW, srcH);
+      id.data.set(srcRGBA);
+      oCtx.putImageData(id, 0, 0);
+      vCtx.clearRect(0, 0, srcW, srcH); vCtx.drawImage(outCanvas, 0, 0);
+      updateViewTransform(); return;
     }
 
-    rCtx.fillStyle=fgColor;
-    const cosA=Math.cos(angleRad),sinA=Math.sin(angleRad);
-    const cx=srcW/2,cy=srcH/2;
-    const diag=Math.sqrt(srcW*srcW+srcH*srcH);
-    const gridW=Math.ceil(diag/cellSize)+2,gridH=Math.ceil(diag/cellSize)+2;
-    lastDotCount=0;
+    const freq = getNum('freq');
+    const cellPx = 300 / freq;                 // pixels per halftone cell at 300 dpi
+    const angleRad = getNum('angle') * Math.PI / 180;
+    const cosA = Math.cos(angleRad), sinA = Math.sin(angleRad);
+    const shape = getActiveShape();
+    const invCellPx = 1 / cellPx;
+    const hardAlpha = getChecked('hardAlpha');
+    const thr = getNum('threshold') / 100 * 255;
+    const [sr, sg, sb] = shirtRGB();
+    // neutral shirt? (R≈G≈B) → use luminance tonal control; else color distance
+    const shirtNeutral = Math.abs(sr-sg) < 14 && Math.abs(sg-sb) < 14 && Math.abs(sr-sb) < 14;
+    const shirtLum = (0.299*sr + 0.587*sg + 0.114*sb) / 255;
+    const shirtLumNorm = Math.max(shirtLum, 1 - shirtLum) || 1;
 
-    // DTF minimum dot size enforcement (at 300 DPI, 0.5mm = ~6px)
-    const minDotPx = Math.max(1, Math.round(0.5 / 25.4 * 300)); // ~6px
+    const out = oCtx.createImageData(srcW, srcH);
+    const o = out.data;
+    const s = srcRGBA;
 
-    function processDot(px,py,rot){
-      if(px<-cellSize||px>srcW+cellSize||py<-cellSize||py>srcH+cellSize)return;
-      const pixel=getPixel(px,py);if(preserveAlpha&&pixel.a<10)return;
-      let bright=(0.299*pixel.r+0.587*pixel.g+0.114*pixel.b)/255;
-      bright=0.5+(bright-0.5)*contrast;bright=Math.max(0,Math.min(1,bright));
-      if(invert)bright=1-bright;
-      if(dotGainComp>0){bright=bright+dotGainComp*Math.sin(bright*Math.PI)*0.5;bright=Math.max(0,Math.min(1,bright));}
-      const darkness=1-bright;if(darkness<minTone)return;
-      let size=darkness*cellSize;if(size<0.5)return;
-      if(preserveAlpha&&pixel.a<255){size*=pixel.a/255;if(size<0.3)return;}
-      if(coloredDots)rCtx.fillStyle=`rgb(${pixel.r},${pixel.g},${pixel.b})`;
-      lastDotCount++;drawShape(rCtx,shapeType,px,py,size,rot);
-    }
+    // normalized distance-from-cell-center → dot membership
+    // r in 0..1 (0 center). ink if control >= r
+    const HALF_DIAG = 0.70710678; // sqrt(0.5)
 
-    if(gridType==='stochastic'){
-      const rng=mulberry32(noiseSeed+99);
-      // Enforce minimum dot size for DTF
-      const dotSize=Math.max(minDotPx*0.5, cellSize*0.3);
-      const sampleStep=Math.max(2,Math.floor(cellSize*0.6));
-      for(let y=0;y<srcH;y+=sampleStep){for(let x=0;x<srcW;x+=sampleStep){
-        const pixel=getPixel(x,y);if(preserveAlpha&&pixel.a<10)continue;
-        let bright=(0.299*pixel.r+0.587*pixel.g+0.114*pixel.b)/255;
-        bright=0.5+(bright-0.5)*contrast;bright=Math.max(0,Math.min(1,bright));
-        if(invert)bright=1-bright;
-        if(dotGainComp>0)bright=Math.min(1,bright+dotGainComp*Math.sin(bright*Math.PI)*0.5);
-        const darkness=1-bright;if(darkness<minTone)continue;
-        if(rng()<darkness){
-          let sz=dotSize;if(preserveAlpha&&pixel.a<255)sz*=pixel.a/255;if(sz<0.3)continue;
-          const jx=x+(rng()-0.5)*sampleStep,jy=y+(rng()-0.5)*sampleStep;
-          if(coloredDots)rCtx.fillStyle=`rgb(${pixel.r},${pixel.g},${pixel.b})`;
-          lastDotCount++;drawShape(rCtx,shapeType,jx,jy,sz,0);
+    for (let y = 0; y < srcH; y++) {
+      // precompute rotated base for this row
+      const yCos = y * cosA, ySin = y * sinA;
+      for (let x = 0; x < srcW; x++) {
+        const idx = (y * srcW + x) * 4;
+        let a = s[idx + 3];
+
+        // hard alpha (threshold) first
+        if (hardAlpha) a = a >= thr ? 255 : 0;
+
+        if (a === 0) { o[idx+3] = 0; continue; }
+
+        const r0 = s[idx], g0 = s[idx+1], b0 = s[idx+2];
+
+        // ── determine control (0..1, 1 = full ink) ──
+        let control, keepSolid = false;
+        if (mode === 'transparency') {
+          if (a >= 255) { keepSolid = true; }         // opaque motif → untouched
+          else { control = a / 255; }                  // semi-transparent → dot size ∝ alpha
+        } else {
+          // full motif: build tonal control, then knock out shirt color
+          if (shirtNeutral) {
+            // neutral shirt → luminance-based (best tonal separation), like the videos' grayscale+invert
+            const lum = (0.299*r0 + 0.587*g0 + 0.114*b0) / 255;
+            control = Math.abs(lum - shirtLum) / shirtLumNorm;
+          } else {
+            // colored shirt → color distance (difference-blend technique)
+            const dr = r0 - sr, dg = g0 - sg, db = b0 - sb;
+            control = Math.sqrt(dr*dr + dg*dg + db*db) / MAXDIST;
+          }
+          control = applyLevels(control);
         }
-      }}
-    } else if(gridType==='radial'){
-      const maxR=Math.sqrt(cx*cx+cy*cy);
-      for(let r=cellSize/2;r<maxR+cellSize;r+=cellSize){const num=Math.max(6,Math.round((2*Math.PI*r)/cellSize));const step=(2*Math.PI)/num;for(let i=0;i<num;i++){const a=i*step;processDot(cx+r*Math.cos(a),cy+r*Math.sin(a),a);}}
-    } else {
-      const rowH=gridType==='hex'?cellSize*0.866:cellSize;
-      for(let gy=-gridH;gy<=gridH;gy++){for(let gx=-gridW;gx<=gridW;gx++){let lx=gx*cellSize,ly=gy*rowH;if(gridType==='hex'&&gy%2!==0)lx+=cellSize*0.5;processDot(cx+lx*cosA-ly*sinA,cy+lx*sinA+ly*cosA,angleRad);}}
-    }
 
-    // Blend compositing
-    if(doBlend){
-      const htData=rCtx.getImageData(0,0,srcW,srcH);const htPx=htData.data;
-      for(let i=0;i<srcW*srcH;i++){
-        const si=i*4;const a=alphaData[i];if(a<10)continue;
-        let darkness=1-(0.299*sourceData[si]+0.587*sourceData[si+1]+0.114*sourceData[si+2])/255;
-        let blend=0;if(darkness>=blendHigh)blend=1;else if(darkness>blendLow)blend=(darkness-blendLow)/(blendHigh-blendLow);
-        if(blend>0){const sr=sourceData[si],sg=sourceData[si+1],sb=sourceData[si+2];const hr=htPx[si],hg=htPx[si+1],hb=htPx[si+2],ha=htPx[si+3];
-          if(ha===0){htPx[si]=sr;htPx[si+1]=sg;htPx[si+2]=sb;htPx[si+3]=Math.round(a*blend);}
-          else{htPx[si]=Math.round(hr*(1-blend)+sr*blend);htPx[si+1]=Math.round(hg*(1-blend)+sg*blend);htPx[si+2]=Math.round(hb*(1-blend)+sb*blend);htPx[si+3]=Math.max(ha,Math.round(a*blend));}}
+        if (keepSolid) {
+          o[idx] = r0; o[idx+1] = g0; o[idx+2] = b0; o[idx+3] = 255;
+          continue;
+        }
+        // apply levels also in transparency mode for the fade band
+        if (mode === 'transparency') control = applyLevels(control);
+
+        if (control <= 0) { o[idx+3] = 0; continue; }
+        if (control >= 1) { o[idx] = r0; o[idx+1] = g0; o[idx+2] = b0; o[idx+3] = 255; continue; }
+
+        // ── halftone screen ──
+        const xr = x * cosA - ySin;
+        const yr = x * sinA + yCos;
+        let u = xr * invCellPx; u = u - Math.floor(u) - 0.5;
+        let v = yr * invCellPx; v = v - Math.floor(v) - 0.5;
+
+        let rNorm;
+        if (shape === 'round') rNorm = Math.sqrt(u*u + v*v) / HALF_DIAG;
+        else if (shape === 'diamond') rNorm = (Math.abs(u) + Math.abs(v)) / 0.5;
+        else if (shape === 'line') rNorm = Math.abs(v) / 0.5;
+        else rNorm = Math.max(Math.abs(u), Math.abs(v)) / 0.5;
+
+        if (control >= rNorm) { o[idx] = r0; o[idx+1] = g0; o[idx+2] = b0; o[idx+3] = 255; }
+        else o[idx+3] = 0;
       }
-      rCtx.putImageData(htData,0,0);
     }
 
-    applyEffects();
-    document.getElementById('infoDots').textContent=lastDotCount.toLocaleString()+' dots';
-    viewCanvas.width=srcW;viewCanvas.height=srcH;vCtx.clearRect(0,0,srcW,srcH);vCtx.drawImage(renderCanvas,0,0);
-    updateCoverage();
-    }
+    oCtx.putImageData(out, 0, 0);
 
-  // ─── Ink Coverage ───
-  function updateCoverage(){
-    const data=rCtx.getImageData(0,0,renderCanvas.width,renderCanvas.height).data;
-    let filled=0;const total=renderCanvas.width*renderCanvas.height;
-    for(let i=3;i<data.length;i+=4){if(data[i]>10)filled++;}
-    lastCoverage=((filled/total)*100);
-    document.getElementById('coverageVal').textContent=lastCoverage.toFixed(1)+'%';
-    document.getElementById('coverageFill').style.width=Math.min(100,lastCoverage)+'%';
-    const fill=document.getElementById('coverageFill');
-    fill.style.background=lastCoverage>95?'#f44':lastCoverage>85?'var(--gold)':'var(--accent2)';
-    const hint=document.getElementById('coverageHint');
-    if(lastCoverage>95)hint.textContent='Sehr hohe Abdeckung — kaum Textil sichtbar, steifer Griff.';
-    else if(lastCoverage>70)hint.textContent='Hohe Abdeckung — gute Farbdeckung, mittlerer Griff.';
-    else if(lastCoverage>40)hint.textContent='Mittlere Abdeckung — weicher Griff, Textil scheint durch.';
-    else hint.textContent='Geringe Abdeckung — sehr weich, viel Textil sichtbar.';
+    // ── compose view ──
+    vCtx.clearRect(0, 0, srcW, srcH);
+    if (currentView === 'shirt') { vCtx.fillStyle = shirtColor; vCtx.fillRect(0, 0, srcW, srcH); }
+    vCtx.drawImage(outCanvas, 0, 0);
+    updateViewTransform();
   }
 
-  // ─── Draw Shape ───
-  function drawShape(ctx,type,x,y,size,rotation){
-    const half=size/2;ctx.save();ctx.translate(x,y);
-    switch(type){
-      case'circle':ctx.beginPath();ctx.arc(0,0,half,0,Math.PI*2);ctx.fill();break;
-      case'square':ctx.rotate(rotation);ctx.fillRect(-half,-half,size,size);break;
-      case'diamond':ctx.rotate(rotation+Math.PI/4);ctx.fillRect(-half,-half,size,size);break;
-      case'triangle':ctx.rotate(rotation);ctx.beginPath();ctx.moveTo(0,-half);ctx.lineTo(half,half);ctx.lineTo(-half,half);ctx.closePath();ctx.fill();break;
-      case'hex':ctx.beginPath();for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6;i===0?ctx.moveTo(half*Math.cos(a),half*Math.sin(a)):ctx.lineTo(half*Math.cos(a),half*Math.sin(a));}ctx.closePath();ctx.fill();break;
-      case'cross':{ctx.rotate(rotation);const arm=size*0.3;ctx.fillRect(-half,-arm/2,size,arm);ctx.fillRect(-arm/2,-half,arm,size);break;}
-      case'star':ctx.rotate(rotation);ctx.beginPath();for(let i=0;i<10;i++){const a=(Math.PI/5)*i-Math.PI/2,r=i%2===0?half:half*0.4;i===0?ctx.moveTo(r*Math.cos(a),r*Math.sin(a)):ctx.lineTo(r*Math.cos(a),r*Math.sin(a));}ctx.closePath();ctx.fill();break;
-      case'ring':ctx.beginPath();ctx.arc(0,0,half,0,Math.PI*2);ctx.arc(0,0,half*0.45,0,Math.PI*2,true);ctx.fill();break;
-      case'line':ctx.rotate(rotation);ctx.fillRect(-half,-size*0.12,size,size*0.24);break;
-      case'flower':for(let i=0;i<6;i++){const a=(Math.PI/3)*i;ctx.beginPath();ctx.ellipse(half*0.45*Math.cos(a),half*0.45*Math.sin(a),half*0.45,half*0.28,a,0,Math.PI*2);ctx.fill();}break;
-      case'heart':{ctx.rotate(rotation);const s=half*0.6;ctx.beginPath();ctx.moveTo(0,s*0.6);ctx.bezierCurveTo(-s*1.5,-s*0.3,-s*0.5,-s*1.6,0,-s*0.6);ctx.bezierCurveTo(s*0.5,-s*1.6,s*1.5,-s*0.3,0,s*0.6);ctx.fill();break;}
-      case'slash':ctx.rotate(rotation+Math.PI/4);ctx.fillRect(-half,-size*0.1,size,size*0.2);break;
-    }
-    ctx.restore();
+  // ─── Zoom & Pan (from legacy) ───
+  function zoomToFit() {
+    const r = canvasArea.getBoundingClientRect();
+    zoom = Math.min((r.width - 40) / srcW, (r.height - 40) / srcH, 1);
+    panX = (r.width - srcW * zoom) / 2; panY = (r.height - srcH * zoom) / 2;
+    updateViewTransform();
   }
-
-  // ─── Effects ───
-  function applyEffects(){
-    // ─── Eraser-Mode: Alle Effekte entfernen Alpha → erzeugen Transparenz ───
-    const w=renderCanvas.width, h=renderCanvas.height;
-    const imgData=rCtx.getImageData(0,0,w,h);
-    const d=imgData.data;
-    let changed=false;
-
-    // Grain: zufällige per-Pixel Alpha-Reduktion (körnige Erosion)
-    // Size: kleine Size = feines Korn (jeder Pixel), große Size = Cluster-Korn
-    if(getChecked('fx_grain')){
-      const int=getNum('fx_grain_int')/100;
-      const sz=getNum('fx_grain_size')/100;
-      const rng=mulberry32(noiseSeed);
-      const blockSize=Math.max(1, Math.round(1+sz*8)); // 1-9px blocks
-      for(let by=0;by<h;by+=blockSize) for(let bx=0;bx<w;bx+=blockSize){
-        const erode=rng()*int;
-        for(let dy=0;dy<blockSize&&by+dy<h;dy++) for(let dx=0;dx<blockSize&&bx+dx<w;dx++){
-          const i=((by+dy)*w+(bx+dx))*4;
-          if(d[i+3]===0) continue;
-          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
-        }
-      }
-      changed=true;
-    }
-
-    // Dirt: organische Perlin-Noise-Flecken löschen Alpha
-    // Size: kleine Size = feinere Schmutzflecken, große Size = breite Flecken
-    if(getChecked('fx_dirt')){
-      const int=getNum('fx_dirt_int')/100;
-      const sz=getNum('fx_dirt_size')/100;
-      const scale1=0.001+sz*0.012; // 0.001-0.013 (größere sz = größere Flecken)
-      const scale2=scale1*0.25;
-      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-        const i=(y*w+x)*4;
-        if(d[i+3]===0) continue;
-        let n=Perlin.fbm(x*scale1,y*scale1,6,0.5,2.0);
-        n=(n+1)/2;
-        const n2=Perlin.fbm(x*scale2+100,y*scale2+100,3,0.7,2.0);
-        n=n*0.7+((n2+1)/2)*0.3;
-        const erode=Math.max(0,(1-n)*int*1.5);
-        if(erode>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
-      }
-      changed=true;
-    }
-
-    // Scratches: Kratzerlinien als Alpha-Radierer
-    // Size: kleine Size = kurze dünne Kratzer, große Size = lange breite Kratzer
-    if(getChecked('fx_scratches')){
-      const int=getNum('fx_scratches_int')/100;
-      const sz=getNum('fx_scratches_size')/100;
-      const rng=mulberry32(noiseSeed+1);
-      const num=Math.floor(20+int*80);
-      const off=document.createElement('canvas');
-      off.width=w; off.height=h;
-      const oc=off.getContext('2d');
-      oc.fillStyle='black'; oc.fillRect(0,0,w,h);
-      oc.strokeStyle='white'; oc.lineCap='round';
-      const maxLen=Math.min(w,h);
-      for(let s=0;s<num;s++){
-        oc.lineWidth=(0.5+rng()*2.5)*(0.3+sz*2); // thicker with size
-        oc.globalAlpha=0.3+rng()*0.7;
-        oc.beginPath();
-        const sx=rng()*w, sy=rng()*h;
-        const len=(10+rng()*maxLen*0.15)*(0.3+sz*2); // longer with size
-        const a=rng()*Math.PI;
-        oc.moveTo(sx,sy);
-        oc.quadraticCurveTo(
-          sx+len*0.5*Math.cos(a)+(rng()-0.5)*20*sz,
-          sy+len*0.5*Math.sin(a)+(rng()-0.5)*20*sz,
-          sx+len*Math.cos(a), sy+len*Math.sin(a)
-        );
-        oc.stroke();
-      }
-      oc.globalAlpha=1;
-      const mask=oc.getImageData(0,0,w,h).data;
-      for(let i=0;i<d.length;i+=4){
-        if(d[i+3]===0) continue;
-        const bright=mask[i]/255;
-        if(bright>0.05){
-          const erode=bright*int;
-          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
-        }
-      }
-      changed=true;
-    }
-
-    // Dust: kleine Partikel-Löcher im Alpha
-    // Size: kleine Size = Feinstaub, große Size = grobe Partikel
-    if(getChecked('fx_dust')){
-      const int=getNum('fx_dust_int')/100;
-      const sz=getNum('fx_dust_size')/100;
-      const rng=mulberry32(noiseSeed+2);
-      const num=Math.floor(100+int*600);
-      for(let p=0;p<num;p++){
-        const cx=rng()*w, cy=rng()*h;
-        const r=(0.5+rng()*2.5)*(0.3+sz*2.5); // 0.15-7px radius
-        const strength=0.4+rng()*0.6;
-        const r2=r*r;
-        const x0=Math.max(0,Math.floor(cx-r)), x1=Math.min(w-1,Math.ceil(cx+r));
-        const y0=Math.max(0,Math.floor(cy-r)), y1=Math.min(h-1,Math.ceil(cy+r));
-        for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
-          const dx=x-cx, dy=y-cy;
-          if(dx*dx+dy*dy<=r2){
-            const i=(y*w+x)*4;
-            if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*int)));
-          }
-        }
-      }
-      changed=true;
-    }
-
-    // Splatter: große abgeplatzte Bereiche + Tropfen (wie abblätternde Farbe)
-    // Size: kleine Size = kleine Flecken, große Size = große Abplatzungen
-    if(getChecked('fx_splatter')){
-      const int=getNum('fx_splatter_int')/100;
-      const sz=getNum('fx_splatter_size')/100;
-      const rng=mulberry32(noiseSeed+3);
-      const numBlobs=Math.floor(5+int*25);
-      for(let s=0;s<numBlobs;s++){
-        const cx=rng()*w, cy=rng()*h;
-        const mr=(3+rng()*15*int)*(0.3+sz*3); // scale blob radius with size
-        const strength=0.5+rng()*0.5;
-        const mr2=mr*mr;
-        const x0=Math.max(0,Math.floor(cx-mr)), x1=Math.min(w-1,Math.ceil(cx+mr));
-        const y0=Math.max(0,Math.floor(cy-mr)), y1=Math.min(h-1,Math.ceil(cy+mr));
-        for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
-          const dx=x-cx, dy=y-cy;
-          const dist2=dx*dx+dy*dy;
-          if(dist2<=mr2){
-            const falloff=1-Math.sqrt(dist2)/mr;
-            const i=(y*w+x)*4;
-            if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*falloff*int)));
-          }
-        }
-        // Tropfen drumherum
-        const numDrops=Math.floor(3+rng()*12);
-        for(let dd=0;dd<numDrops;dd++){
-          const da=rng()*Math.PI*2, dist=mr+rng()*mr*3;
-          const dx2=cx+Math.cos(da)*dist, dy2=cy+Math.sin(da)*dist;
-          const dr=(1+rng()*4)*(0.3+sz*1.5);
-          const dr2=dr*dr;
-          const bx0=Math.max(0,Math.floor(dx2-dr)), bx1=Math.min(w-1,Math.ceil(dx2+dr));
-          const by0=Math.max(0,Math.floor(dy2-dr)), by1=Math.min(h-1,Math.ceil(dy2+dr));
-          for(let y=by0;y<=by1;y++) for(let x=bx0;x<=bx1;x++){
-            const ddx=x-dx2, ddy=y-dy2;
-            if(ddx*ddx+ddy*ddy<=dr2){
-              const i=(y*w+x)*4;
-              if(d[i+3]>0) d[i+3]=Math.max(0, Math.round(d[i+3]*(1-strength*0.7*int)));
-            }
-          }
-        }
-      }
-      changed=true;
-    }
-
-    // Worn: großflächige Perlin-Noise-Erosion
-    // Size: kleine Size = feine Abnutzung, große Size = breite abgenutzte Flächen
-    if(getChecked('fx_worn')){
-      const int=getNum('fx_worn_int')/100;
-      const sz=getNum('fx_worn_size')/100;
-      const rng=mulberry32(noiseSeed+4);
-      const wornScale=0.002+sz*0.02; // 0.002-0.022
-      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-        const i=(y*w+x)*4;
-        if(d[i+3]===0) continue;
-        let n=Perlin.fbm(x*wornScale+500,y*wornScale+500,4,0.5,2.5);
-        n=(n+1)/2;
-        // Noise-Varianz hinzufügen
-        n=Math.max(0,Math.min(1, n+(rng()-0.5)*0.15));
-        // Schwellenwert: unter threshold → Alpha-Erosion
-        const threshold=0.3+int*0.45;
-        if(n<threshold){
-          const erode=(1-n/threshold)*int;
-          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
-        }
-      }
-      changed=true;
-    }
-
-    // Vignette: radiale Alpha-Verblassung vom Rand
-    // Size: kleine Size = enges Loch in der Mitte, große Size = breiter offener Bereich
-    if(getChecked('fx_vignette')){
-      const int=getNum('fx_vignette_int')/100;
-      const sz=getNum('fx_vignette_size')/100;
-      const cx=w/2, cy=h/2;
-      const maxR=Math.max(w,h)*(0.3+sz*0.6); // 0.3-0.9 of max dimension
-      const innerR=Math.min(w,h)*(0.05+sz*0.4); // 0.05-0.45 of min dimension
-      for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-        const i=(y*w+x)*4;
-        if(d[i+3]===0) continue;
-        const dist=Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy));
-        if(dist>innerR){
-          const t=Math.min(1,(dist-innerR)/(maxR-innerR));
-          const erode=t*t*int;
-          d[i+3]=Math.max(0, Math.round(d[i+3]*(1-erode)));
-        }
-      }
-      changed=true;
-    }
-
-    if(changed) rCtx.putImageData(imgData,0,0);
+  function updateViewTransform() {
+    viewCanvas.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+    $('zoomLevel').textContent = Math.round(zoom * 100) + '%';
   }
+  canvasArea.addEventListener('wheel', e => {
+    if (!srcRGBA) return; e.preventDefault();
+    const r = canvasArea.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top, oz = zoom;
+    zoom = Math.max(0.05, Math.min(20, zoom * (e.deltaY > 0 ? 0.9 : 1.1)));
+    panX = mx - (mx - panX) * (zoom / oz); panY = my - (my - panY) * (zoom / oz);
+    updateViewTransform();
+  }, { passive: false });
+  canvasArea.addEventListener('mousedown', e => {
+    if (!srcRGBA || e.button !== 0) return;
+    isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY; panStartX = panX; panStartY = panY;
+    canvasArea.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => { if (!isDragging) return; panX = panStartX + (e.clientX - dragStartX); panY = panStartY + (e.clientY - dragStartY); updateViewTransform(); });
+  window.addEventListener('mouseup', () => { isDragging = false; canvasArea.classList.remove('dragging'); });
+  $('zoomIn').addEventListener('click', () => { zoom = Math.min(20, zoom * 1.3); updateViewTransform(); });
+  $('zoomOut').addEventListener('click', () => { zoom = Math.max(0.05, zoom / 1.3); updateViewTransform(); });
+  $('zoomFit').addEventListener('click', zoomToFit);
 
-  // ─── Export PNG ───
-  document.getElementById('exportPng').addEventListener('click',()=>{
-    if(!sourceData)return;render();
-    const cmW=parseFloat(document.getElementById('exportWidthCm').value)||30;
-    const dpi=parseInt(document.getElementById('exportDpi').value)||300;
-    const tW=Math.round(cmW/2.54*dpi),tH=Math.round(tW*(srcH/srcW));
-    if(tW===srcW&&tH===srcH){const l=document.createElement('a');l.download='halftone.png';l.href=renderCanvas.toDataURL('image/png');l.click();return;}
-    const ec=document.createElement('canvas');ec.width=tW;ec.height=tH;const ex=ec.getContext('2d');ex.imageSmoothingEnabled=true;ex.imageSmoothingQuality='high';ex.drawImage(renderCanvas,0,0,tW,tH);
-    const l=document.createElement('a');l.download=`halftone_${tW}x${tH}.png`;l.href=ec.toDataURL('image/png');l.click();
+  // ─── Export ───
+  function updateExportInfo() {
+    const cmW = parseFloat($('exportWidthCm').value) || 30;
+    const dpi = parseInt($('exportDpi').value) || 300;
+    $('exportInfo').textContent = `→ ${Math.round(cmW/2.54*dpi).toLocaleString()} px breit`;
+  }
+  updateExportInfo();
+  $('exportWidthCm').addEventListener('input', updateExportInfo);
+  $('exportDpi').addEventListener('input', updateExportInfo);
+
+  $('exportPng').addEventListener('click', () => {
+    if (!srcRGBA) return;
+    render(); // ensure outCanvas current (pure halftone, transparent)
+    const cmW = parseFloat($('exportWidthCm').value) || 30;
+    const dpi = parseInt($('exportDpi').value) || 300;
+    const tW = Math.round(cmW / 2.54 * dpi), tH = Math.round(tW * (srcH / srcW));
+    let src = outCanvas, name = 'halftone.png';
+    if (tW !== srcW) {
+      const ec = document.createElement('canvas'); ec.width = tW; ec.height = tH;
+      const ex = ec.getContext('2d'); ex.imageSmoothingEnabled = true; ex.imageSmoothingQuality = 'high';
+      ex.drawImage(outCanvas, 0, 0, tW, tH); src = ec; name = `halftone_${tW}x${tH}.png`;
+    }
+    const l = document.createElement('a'); l.download = name; l.href = src.toDataURL('image/png'); l.click();
   });
 
-  // ─── Export SVG ───
-  document.getElementById('exportSvg').addEventListener('click',()=>{
-    if(!sourceData)return;
-    const cellSize=getNum('cellSize'),contrast=getNum('contrast'),minTone=getNum('minTone')/100;
-    const dotGainComp=getNum('dotGain')/100,angleDeg=getNum('angle');
-    const invert=getChecked('invertCheck'),preserveAlpha=getChecked('preserveAlpha');
-    const fgColor=getVal('fgColor'),gridType=getActive('gridType'),shapeType=getActive('shapeType');
-    const coloredDots=getChecked('coloredDots');
-    const angleRad=(angleDeg*Math.PI)/180,cosA=Math.cos(angleRad),sinA=Math.sin(angleRad);
-    const cxI=srcW/2,cyI=srcH/2,diag=Math.sqrt(srcW*srcW+srcH*srcH);
-    const gW=Math.ceil(diag/cellSize)+2,gH=Math.ceil(diag/cellSize)+2;
-    let shapes='';
-    function svgS(type,x,y,size,rot,col){const half=size/2;const f=col?` fill="${col}"`:'';switch(type){case'circle':return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${half.toFixed(1)}"${f}/>`;case'square':return`<rect x="${(-half).toFixed(1)}" y="${(-half).toFixed(1)}" width="${size.toFixed(1)}" height="${size.toFixed(1)}" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(rot*180/Math.PI).toFixed(1)})"${f}/>`;default:return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${half.toFixed(1)}"${f}/>`;}};
-    function proc(px,py,rot){if(px<-cellSize||px>srcW+cellSize||py<-cellSize||py>srcH+cellSize)return;const p=getPixel(px,py);if(preserveAlpha&&p.a<10)return;let b=(0.299*p.r+0.587*p.g+0.114*p.b)/255;b=0.5+(b-0.5)*contrast;b=Math.max(0,Math.min(1,b));if(invert)b=1-b;if(dotGainComp>0)b=Math.min(1,b+dotGainComp*Math.sin(b*Math.PI)*0.5);const d=1-b;if(d<minTone)return;let sz=d*cellSize;if(sz<0.5)return;if(preserveAlpha&&p.a<255){sz*=p.a/255;if(sz<0.3)return;}const c=coloredDots?`rgb(${p.r},${p.g},${p.b})`:null;shapes+=svgS(shapeType,px,py,sz,rot,c)+'\n';}
-    if(gridType==='stochastic'){const rng=mulberry32(noiseSeed+99);const ds=Math.max(1.5,cellSize*0.3);const step=Math.max(2,Math.floor(cellSize*0.6));for(let y=0;y<srcH;y+=step)for(let x=0;x<srcW;x+=step){const p=getPixel(x,y);if(preserveAlpha&&p.a<10)continue;let b=(0.299*p.r+0.587*p.g+0.114*p.b)/255;b=0.5+(b-0.5)*contrast;b=Math.max(0,Math.min(1,b));if(invert)b=1-b;if(dotGainComp>0)b=Math.min(1,b+dotGainComp*Math.sin(b*Math.PI)*0.5);if(1-b<minTone)continue;if(rng()<1-b){let sz=ds;if(preserveAlpha&&p.a<255)sz*=p.a/255;if(sz<0.3)continue;const c=coloredDots?`rgb(${p.r},${p.g},${p.b})`:null;shapes+=svgS(shapeType,x+(rng()-0.5)*step,y+(rng()-0.5)*step,sz,0,c)+'\n';}}}
-    else if(gridType==='radial'){const maxR=Math.sqrt(cxI*cxI+cyI*cyI);for(let r=cellSize/2;r<maxR+cellSize;r+=cellSize){const num=Math.max(6,Math.round(2*Math.PI*r/cellSize));const step=2*Math.PI/num;for(let i=0;i<num;i++){const a=i*step;proc(cxI+r*Math.cos(a),cyI+r*Math.sin(a),a);}}}
-    else{const rowH=gridType==='hex'?cellSize*0.866:cellSize;for(let gy=-gH;gy<=gH;gy++)for(let gx=-gW;gx<=gW;gx++){let lx=gx*cellSize,ly=gy*rowH;if(gridType==='hex'&&gy%2!==0)lx+=cellSize*0.5;proc(cxI+lx*cosA-ly*sinA,cyI+lx*sinA+ly*cosA,angleRad);}}
-    const df=coloredDots?'':` fill="${fgColor}"`;
-    const svg=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${srcW} ${srcH}" width="${srcW}" height="${srcH}">\n<g${df}>\n${shapes}</g>\n</svg>`;
-    const blob=new Blob([svg],{type:'image/svg+xml'});const l=document.createElement('a');l.download='halftone.svg';l.href=URL.createObjectURL(blob);l.click();
-  });
-
-  document.getElementById('dtfPreset').dispatchEvent(new Event('change'));
+  updateShirtPreview();
 })();
 </script>
 </body>
